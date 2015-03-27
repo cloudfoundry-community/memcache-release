@@ -1,5 +1,5 @@
 --- 
-final_name: norouter
+final_name: change-this-release-name
 min_cli_version: 1.0.3
 blobstore: 
   provider: s3
