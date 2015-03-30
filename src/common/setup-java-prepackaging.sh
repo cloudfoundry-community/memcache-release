@@ -1,6 +1,6 @@
 MAVEN_VERSION=apache-maven-3.3.1
 JAVA_VERSION=jdk1.8.0_40
-JAVA_TAR_BALL=jdk-8u40-linux-i586.tar.gz
+JAVA_TAR_BALL=jdk-8u40-linux-x64.tar.gz
 
 cd ${BUILD_DIR}
 

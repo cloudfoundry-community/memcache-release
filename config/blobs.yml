@@ -1,9 +1,9 @@
 ---
-java/jdk-8u40-linux-i586.tar.gz:
-  object_id: dcd217c8-27c1-473f-a9f1-923f5d536202
-  sha: 52514ff54274662d6f47ce408f0d3fff1bfdec63
-  size: 174958165
 java/apache-maven-3.3.1-bin.tar.gz:
   object_id: 4ac1e679-ec48-49c9-8d28-6d2d88a73be8
   sha: a98e56056d17b415a3b13d113199bf5f8121489b
   size: 8059952
+java/jdk-8u40-linux-x64.tar.gz:
+  object_id: 1b87185f-976c-4868-98c7-6bc413deb4f0
+  sha: 71699364e0147434a68e9331f45208873e3be7bc
+  size: 173190465
