@@ -1,0 +1,6 @@
+[submodule "src/memcache-hazelcast"]
+	path = src/memcache-hazelcast
+	url = https://github.com/cloudfoundry-community/memcache-hazelcast.git
+[submodule "src/memcache-broker"]
+	path = src/memcache-broker
+	url = https://github.com/cloudfoundry-community/memcache-broker.git
