@@ -2,4 +2,3 @@
 name: memcache-java
 files:
 - java/*
-
