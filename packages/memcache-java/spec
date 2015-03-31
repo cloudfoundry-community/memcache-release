@@ -1,5 +1,5 @@
 ---
-name: java
+name: memcache-java
 files:
 - java/*
 
