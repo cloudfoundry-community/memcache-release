@@ -1,9 +1,9 @@
 ---
-java/apache-maven-3.3.1-bin.tar.gz:
-  object_id: 4ac1e679-ec48-49c9-8d28-6d2d88a73be8
-  sha: a98e56056d17b415a3b13d113199bf5f8121489b
-  size: 8059952
 java/jdk-8u40-linux-x64.tar.gz:
-  object_id: 1b87185f-976c-4868-98c7-6bc413deb4f0
+  object_id: dcc35cfc-64c1-40e4-a811-5d4e619f3958
   sha: 71699364e0147434a68e9331f45208873e3be7bc
   size: 173190465
+java/apache-maven-3.3.1-bin.tar.gz:
+  object_id: 26d94610-af42-4fd2-be9d-a8cff6c520c5
+  sha: a98e56056d17b415a3b13d113199bf5f8121489b
+  size: 8059952

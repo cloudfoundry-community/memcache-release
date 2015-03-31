@@ -4,7 +4,7 @@ min_cli_version: 1.0.3
 blobstore: 
   provider: s3
   options: 
-    bucket_name: mah-bosh-blobs
-    access_key_id: AKIAI2ALVO3UGSMF4FPA
-    secret_access_key: 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
+    bucket_name: paas-bosh-releases
+    access_key_id: AKIAI3VVLM2EK25T72VA
+    secret_access_key: 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
 
