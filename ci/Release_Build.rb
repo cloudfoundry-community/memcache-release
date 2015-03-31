@@ -4,7 +4,7 @@ final_build = ARGV[0] == "true"
 access_key_id = ARGV[1]
 secret_access_key = ARGV[2]
 
-final_release_name = "change-this-release-name"
+final_release_name = "memcache"
 
 home_directory = Dir.pwd
 

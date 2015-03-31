@@ -1,5 +1,5 @@
 --- 
-final_name: change-this-release-name
+final_name: memcache
 min_cli_version: 1.0.3
 blobstore: 
   provider: s3
