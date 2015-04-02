@@ -1,0 +1,3 @@
+set -e
+
+cp -r ${BOSH_COMPILE_TARGET}/*.jar ${BOSH_INSTALL_TARGET}

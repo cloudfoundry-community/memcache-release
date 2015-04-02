@@ -1,0 +1,5 @@
+check process memcache_hazelcast
+  with pidfile /var/vcap/sys/run/memcache_hazelcast/memcache_hazelcast.pid
+  start program "/var/vcap/jobs/memcache_hazelcast/bin/memcache_hazelcast start"
+  stop program "/var/vcap/jobs/memcache_hazelcast/bin/memcache_hazelcast stop"
+  group vcap

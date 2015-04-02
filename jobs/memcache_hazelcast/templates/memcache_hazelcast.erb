@@ -1,0 +1,43 @@
+#!/bin/bash
+
+JOB_DIR=/var/vcap/jobs/memcache_hazelcast
+RUN_DIR=/var/vcap/sys/run/memcache_hazelcast
+PIDFILE=$RUN_DIR/memcache_hazelcast.pid
+LIB_DIR=$JOB_DIR/lib
+
+source /var/vcap/packages/memcache-common/utils.sh
+
+case $1 in
+
+start)
+pid_guard $PIDFILE "Memcache Hazelcast"
+
+mkdir -p $RUN_DIR
+
+# Clean-up any Tomcat droppings
+rm -rf $RUN_DIR/tomcat
+
+mkdir -p $LIB_DIR
+cp /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar $LIB_DIR
+
+export JAVA_HOME=/var/vcap/packages/memcache-java
+
+cd $JOB_DIR
+exec $JAVA_HOME/bin/java -XX:OnOutOfMemoryError="/var/vcap/bosh/bin/monit restart memcache_hazelcast" \
+-server -XX:+UseG1GC -XX:MaxHeapFreeRatio=25 -Xms<%= p('memcache_hazelcast.heap_size') %> -Xmx<%= p('memcache_hazelcast.heap_size') %> \
+-jar /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar
+
+;;
+
+stop)
+kill_and_wait $PIDFILE
+
+;;
+
+*)
+echo "Usage: memcache_hazelcast {start|stop}"
+
+;;
+
+esac
+exit 0

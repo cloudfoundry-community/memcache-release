@@ -1,0 +1,49 @@
+---
+loggregator_endpoint:
+  host: <%= p("metron_endpoint.host") %>
+  port: <%= p("metron_endpoint.port") %>
+  shared_secret: <%= p("metron_endpoint.shared_secret") %>
+
+pidfile: /var/vcap/sys/run/memcache_hazelcast/memcache_hazelcast.pid
+
+logging:
+  level: INFO
+
+nats:
+  machines:
+<% p("nats.machines").each do |address| %>
+  - nats://<%= p("nats.user") %>:<%= p("nats.password") %>@<%= address %>:<%= p("nats.port") %>
+<% end %>
+
+
+host:
+  local: <%= spec.networks.send(properties.networks.apps).ip %>
+  public: memcache_hazelcast.<%= p('domain')%>
+  port: <%= p('memcache_hazelcast.host.port') %>
+  username: <%= p('memcache_hazelcast.host.username') %>
+  password: <%= p('memcache_hazelcast.host.password') %>
+
+tomcat:
+  base_directory: /var/vcap/sys/run/memcache_hazelcast/tomcat
+  
+memcache:
+  port: <%= p('memcache_hazelcast.memcache.port') %>
+  secret_key: <%= p('memcache_hazelcast.memcache.secret_key') %>
+
+hazelcast:
+  port: <%= p('memcache_hazelcast.hazelcast.port') %>
+  machines:
+<% if_p("memcache_hazelcast.hazelcast.port") do |zone, machines| %>
+    <%= zone %>:
+  <% machines.each do |machine| %>
+    - <%= machine %>
+  <% end %>
+<% end %>
+
+plans:
+<% if_p("memcache_hazelcast.plans") do |plan_name, plan| %>
+  <%= plan_name %>:
+  <% machines.each do |plan_key, plan_value| %>
+    <%= plan_key %>: <%= plan_value %>
+  <% end %>
+<% end %>

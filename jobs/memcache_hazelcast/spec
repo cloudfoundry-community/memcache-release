@@ -1,0 +1,64 @@
+---
+name: memcache_hazelcast
+templates:
+  memcache_hazelcast.erb: bin/memcache_hazelcast
+  config.yml.erb: config/config.yml
+packages:
+- memcache-common
+- memcache-java
+- memcache_hazelcast
+
+properties:
+  nats.user:
+    description: The user used to connect to the NATS server.
+  nats.password:
+    description: The password used to connect to the NATS server.
+  nats.machines:
+    description: The list of hosts running NATS server.
+  nats.port:
+    description: The port used to connect to the NATS server.
+
+  metron_endpoint.host:
+    description: "The host used to emit messages to the Metron agent."
+    default: "127.0.0.1"
+  metron_endpoint.dropsonde_port:
+    description: "The port used to emit dropsonde messages to the Metron agent."
+    default: 3457
+  metron_endpoint.port:
+    description: "The port used to emit legacy messages to the Metron agent."
+    default: 3456
+  metron_endpoint.shared_secret:
+    description: "The key used to sign log messages."
+  cc.srv_api_uri:
+    description: The URL of the Cloud Controller
+  domain:
+    description: The domain of the application
+  networks.apps:
+    description: "Collector network information."
+    
+  memcache_hazelcast.heap_size:
+    description: The amount of Heap the cache should be configured with.
+
+  memcache_hazelcast.host.port:
+    description: The http port the Memcache hazelcast service will listen for REST calls on
+    default: 20080
+  memcache_hazelcast.host.username:
+    description: The memcache rest endpoint username.
+    default: hazelcast-user
+  memcache_hazelcast.host.password:
+    description: The memcache rest endpoint password.
+
+  memcache_hazelcast.memcache.port:
+    description: The port this server will listen on for memcache requests.
+    default: 11211
+  memcache_hazelcast.memcache.secret_key:
+    description: The shared secret used for memcache authentication.
+
+  memcache_hazelcast.hazelcast.port:
+    description: The port this server will listen on for memcache requests.
+    default: 5701
+  memcache_hazelcast.hazelcast.machines:
+    description: The machines in this hazelcast cluster.
+
+  memcache_hazelcast.plans:
+    description: The plans this server will support.

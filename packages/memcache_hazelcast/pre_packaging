@@ -1,0 +1,13 @@
+set -e
+
+. common/setup-java-prepackaging.sh
+
+cd ${BUILD_DIR}/memcache-hazelcast
+mvn -B -e clean install -DskipTests=true
+mv target/memcache-hazelcast.jar ${BUILD_DIR}/
+
+cd ${BUILD_DIR}
+rm -rf memcache-hazelcast
+
+cleanup_java
+

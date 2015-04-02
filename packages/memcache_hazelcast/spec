@@ -1,0 +1,7 @@
+---
+name: memcache_hazelcast
+dependencies:
+files:
+- memcache-hazelcast/**/*
+- java/*
+- common/setup-java-prepackaging.sh
