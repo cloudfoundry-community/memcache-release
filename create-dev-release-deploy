@@ -1,0 +1,20 @@
+#! /bin/bash
+
+# Script for creating and uploading releases
+
+if ! bosh status | egrep -q "^\s+UUID.?*f6043305-ee66-42b0-9ed7-ae1f521ba7ae"; then
+  echo "Slow down turbo! You're NOT using the dev BOSH director."
+  exit 1
+fi
+
+if ! bosh status | egrep -q "^\s+Manifest.?*\/dev\/"; then
+  echo "It appears you're not using a development deployment manifest."
+  exit 1
+fi 
+
+set -e
+
+bosh create release --force
+bosh -n upload release
+bosh -n deploy
+notify-send "Deployment completed"
