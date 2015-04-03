@@ -18,7 +18,7 @@ nats:
 
 host:
   local: <%= spec.networks.send(properties.networks.apps).ip %>
-  public: memcache_hazelcast.<%= p('domain')%>
+  public: memcache-hazelcast.<%= p('domain')%>
   port: <%= p('memcache_hazelcast.host.port') %>
   username: <%= p('memcache_hazelcast.host.username') %>
   password: <%= p('memcache_hazelcast.host.password') %>
@@ -32,18 +32,22 @@ memcache:
 
 hazelcast:
   port: <%= p('memcache_hazelcast.hazelcast.port') %>
+<% if_p("memcache_hazelcast.hazelcast.machines") do |zones| %>
   machines:
-<% if_p("memcache_hazelcast.hazelcast.port") do |zone, machines| %>
+<% zones.each do |zone, machines| %>
     <%= zone %>:
   <% machines.each do |machine| %>
     - <%= machine %>
   <% end %>
 <% end %>
+<% end %>
 
+<% if_p("memcache_hazelcast.plans") do |plans| %>
 plans:
-<% if_p("memcache_hazelcast.plans") do |plan_name, plan| %>
+<% plans.each do |plan_name, plan| %>
   <%= plan_name %>:
-  <% machines.each do |plan_key, plan_value| %>
+  <% plan.each do |plan_key, plan_value| %>
     <%= plan_key %>: <%= plan_value %>
   <% end %>
+<% end %>
 <% end %>

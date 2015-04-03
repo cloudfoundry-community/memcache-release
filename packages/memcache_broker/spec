@@ -1,0 +1,7 @@
+---
+name: memcache_broker
+dependencies:
+files:
+- memcache-broker/**/*
+- java/*
+- common/setup-java-prepackaging.sh

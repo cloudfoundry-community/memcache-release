@@ -1,0 +1,5 @@
+check process memcache_broker
+  with pidfile /var/vcap/sys/run/memcache_broker/memcache_broker.pid
+  start program "/var/vcap/jobs/memcache_broker/bin/memcache_broker start"
+  stop program "/var/vcap/jobs/memcache_broker/bin/memcache_broker stop"
+  group vcap

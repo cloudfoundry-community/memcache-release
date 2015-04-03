@@ -24,8 +24,8 @@ export JAVA_HOME=/var/vcap/packages/memcache-java
 
 cd $JOB_DIR
 exec $JAVA_HOME/bin/java -XX:OnOutOfMemoryError="/var/vcap/bosh/bin/monit restart memcache_hazelcast" \
--server -XX:+UseG1GC -XX:MaxHeapFreeRatio=25 -Xms<%= p('memcache_hazelcast.heap_size') %> -Xmx<%= p('memcache_hazelcast.heap_size') %> \
--jar /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar
+-server -XX:+UseG1GC -Xms<%= p('memcache_hazelcast.heap_size') %> -Xmx<%= p('memcache_hazelcast.heap_size') %> \
+-jar /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar --config=file:$JOB_DIR/config/config.yml
 
 ;;
 

@@ -1,0 +1,45 @@
+---
+name: memcache_broker
+templates:
+  memcache_broker.erb: bin/memcache_broker
+  config.yml.erb: config/config.yml
+packages:
+- memcache-common
+- memcache-java
+- memcache_broker
+
+properties:
+  nats.user:
+    description: The user used to connect to the NATS server.
+  nats.password:
+    description: The password used to connect to the NATS server.
+  nats.machines:
+    description: The list of hosts running NATS server.
+  nats.port:
+    description: The port used to connect to the NATS server.
+
+  domain:
+    description: The domain of the application
+  networks.apps:
+    description: "Collector network information."
+
+  memcache_hazelcast.host.srv_api:
+    description: The service endpoint url on memcache_hazelcast 
+  memcache_hazelcast.host.username:
+    description: The memcache rest endpoint username.
+    default: hazelcast-user
+  memcache_hazelcast.host.password:
+    description: The memcache rest endpoint password.
+  memcache_hazelcast.memcache.secret_key:
+    description: The shared secret used for memcache authentication.
+
+  memcache_broker.host.port:
+    description: The http port the Memcache hazelcast service will listen for REST calls on
+    default: 21080
+  memcache_broker.memcache.vip:
+    description: A vip an application can use to provide simpler access to the memcache cluster.
+  memcache_broker.memcache.servers:
+    description: The machines in this hazelcast cluster.
+
+  memcache_broker.plans:
+    description: The plans this server will support.

@@ -1,0 +1,43 @@
+#!/bin/bash
+
+JOB_DIR=/var/vcap/jobs/memcache_broker
+RUN_DIR=/var/vcap/sys/run/memcache_broker
+PIDFILE=$RUN_DIR/memcache_broker.pid
+LIB_DIR=$JOB_DIR/lib
+
+source /var/vcap/packages/memcache-common/utils.sh
+
+case $1 in
+
+start)
+pid_guard $PIDFILE "Memcache Broker"
+
+mkdir -p $RUN_DIR
+
+# Clean-up any Tomcat droppings
+rm -rf $RUN_DIR/tomcat
+
+mkdir -p $LIB_DIR
+cp /var/vcap/packages/memcache_broker/memcache-hazelcast.jar $LIB_DIR
+
+export JAVA_HOME=/var/vcap/packages/memcache-java
+
+cd $JOB_DIR
+exec $JAVA_HOME/bin/java -XX:OnOutOfMemoryError="/var/vcap/bosh/bin/monit restart memcache_broker" \
+-server -XX:+UseG1GC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=25 \
+-jar /var/vcap/packages/memcache_broker/memcache-broker.jar --config=file:$JOB_DIR/config/config.yml
+
+;;
+
+stop)
+kill_and_wait $PIDFILE
+
+;;
+
+*)
+echo "Usage: memcache_broker {start|stop}"
+
+;;
+
+esac
+exit 0
