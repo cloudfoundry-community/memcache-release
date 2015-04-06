@@ -28,3 +28,4 @@ releases/**/*.tgz
 bosh-lite/manifests/*
 bosh-lite/tmp/*
 /.bosh_config
+/.bosh/
