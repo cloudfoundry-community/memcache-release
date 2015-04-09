@@ -1,5 +1,5 @@
 ---
-brokerPassword: password
+brokerPassword: <%= memcache_broker.broker_password %>
 
 host:
   local: <%= spec.networks.send(properties.networks.apps).ip %>

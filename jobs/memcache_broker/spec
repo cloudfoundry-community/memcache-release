@@ -33,6 +33,8 @@ properties:
   memcache_hazelcast.memcache.secret_key:
     description: The shared secret used for memcache authentication.
 
+  memcache_broker.broker_password:
+    description: The shared secret between the CC and the service broker.
   memcache_broker.host.port:
     description: The http port the Memcache hazelcast service will listen for REST calls on
     default: 21080
