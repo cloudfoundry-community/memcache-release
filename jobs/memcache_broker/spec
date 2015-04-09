@@ -42,6 +42,5 @@ properties:
     description: A vip an application can use to provide simpler access to the memcache cluster.
   memcache_broker.memcache.servers:
     description: The machines in this hazelcast cluster.
-
   memcache_broker.plans:
     description: The plans this server will support.

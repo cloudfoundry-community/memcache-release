@@ -29,8 +29,6 @@ properties:
     default: 3456
   metron_endpoint.shared_secret:
     description: "The key used to sign log messages."
-  cc.srv_api_uri:
-    description: The URL of the Cloud Controller
   domain:
     description: The domain of the application
   networks.apps:
@@ -38,7 +36,6 @@ properties:
     
   memcache_hazelcast.heap_size:
     description: The amount of Heap the cache should be configured with.
-
   memcache_hazelcast.host.port:
     description: The http port the Memcache hazelcast service will listen for REST calls on
     default: 20080
@@ -47,18 +44,15 @@ properties:
     default: hazelcast-user
   memcache_hazelcast.host.password:
     description: The memcache rest endpoint password.
-
   memcache_hazelcast.memcache.port:
     description: The port this server will listen on for memcache requests.
     default: 11211
   memcache_hazelcast.memcache.secret_key:
     description: The shared secret used for memcache authentication.
-
   memcache_hazelcast.hazelcast.port:
     description: The port this server will listen on for memcache requests.
     default: 5701
   memcache_hazelcast.hazelcast.machines:
     description: The machines in this hazelcast cluster.
-
   memcache_hazelcast.plans:
     description: The plans this server will support.
