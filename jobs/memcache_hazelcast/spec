@@ -67,11 +67,10 @@ properties:
     default: 536870912
   memcache_hazelcast.hazelcast.percent_to_trim:
     description: When max cache size is exceeded how much should be evicted from each cache.
-    default: 120
+    default: 20
   memcache_hazelcast.hazelcast.trim_delay:
     description: How often in seconds should the node check to see if max cache size is exceeded.
     default: 10
-
   memcache_hazelcast.hazelcast.machines:
     description: The machines in this hazelcast cluster.
   memcache_hazelcast.plans:
