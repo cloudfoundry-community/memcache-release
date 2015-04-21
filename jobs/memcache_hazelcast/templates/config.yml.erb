@@ -31,7 +31,13 @@ memcache:
   secret_key: <%= p('memcache_hazelcast.memcache.secret_key') %>
 
 hazelcast:
+  executor_pool_size: <%= p('memcache_hazelcast.hazelcast.executor_pool_size') %>
+  local_member_safe_timeout: <%= p('memcache_hazelcast.hazelcast.local_member_safe_timeout') %>
+  max_cache_size: <%= p('memcache_hazelcast.hazelcast.max_cache_size') %>
+  minimum_cluster_members: <%= p('memcache_hazelcast.hazelcast.minimum_cluster_members') %>
+  percent_to_trim: <%= p('memcache_hazelcast.hazelcast.percent_to_trim') %>
   port: <%= p('memcache_hazelcast.hazelcast.port') %>
+  trim_delay: <%= p('memcache_hazelcast.hazelcast.trim_delay') %>
 <% if_p("memcache_hazelcast.hazelcast.machines") do |zones| %>
   machines:
 <% zones.each do |zone, machines| %>

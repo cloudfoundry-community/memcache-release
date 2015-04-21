@@ -36,6 +36,7 @@ properties:
     
   memcache_hazelcast.heap_size:
     description: The amount of Heap the cache should be configured with.
+    default: 1G
   memcache_hazelcast.host.port:
     description: The http port the Memcache hazelcast service will listen for REST calls on
     default: 20080
@@ -52,6 +53,25 @@ properties:
   memcache_hazelcast.hazelcast.port:
     description: The port this server will listen on for memcache requests.
     default: 5701
+  memcache_hazelcast.hazelcast.local_member_safe_timeout:
+    description: Number of seconds to wait for local member to be safe before shutting it down.
+    default: 120
+  memcache_hazelcast.hazelcast.minimum_cluster_members:
+    description: Minimum number of cluster members this node can see to determine if this node is healthy in the cluster.
+    default: 1
+  memcache_hazelcast.hazelcast.executor_pool_size:
+    description: The size of the executor pool to handle asyncronous requests.  A value of zero will use the default of cores * 2.
+    default: 0
+  memcache_hazelcast.hazelcast.max_cache_size:
+    description: The maximum amount of heap you wish to be reserved for cache entries.  Once total cache size gets bigger than this then node will start LRU evicting a % from each cache.  Should be less than heap_size.
+    default: 536870912
+  memcache_hazelcast.hazelcast.percent_to_trim:
+    description: When max cache size is exceeded how much should be evicted from each cache.
+    default: 120
+  memcache_hazelcast.hazelcast.trim_delay:
+    description: How often in seconds should the node check to see if max cache size is exceeded.
+    default: 10
+
   memcache_hazelcast.hazelcast.machines:
     description: The machines in this hazelcast cluster.
   memcache_hazelcast.plans:
