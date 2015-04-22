@@ -83,6 +83,16 @@ cf create-service-broker memcache servicebroker brokerpasswordforcc https://memc
 cf enable-service-access memcache
 ```
 
+Be sure to configure your bosh manifest to only deploy one node at a time giving hazelcast time to recover and repartition after each node is reset.
+
+```
+update:
+  canaries: 1
+  canary_watch_time: 3000-240000
+  update_watch_time: 3000-240000
+  max_in_flight: 1 # This is the important setting
+```
+
 ### Memory Configuration
 For a caching service it is important to configure memory correctly.  There are 3 places memory is configured that you should take note of:
 
