@@ -14,7 +14,7 @@ Features:
 * Flexible Service Plans
 * All Free and Open Source
 
-## Installation
+## Deployment
 
 The simplest way to deploy this memcache service is to use BOSH.  The following is an example of the properties section of a deployment manifest.
 
@@ -64,12 +64,47 @@ The simplest way to deploy this memcache service is to use BOSH.  The following 
         async_backup: 1 # Same as above but done asyncronously
         eviction_policy: LRU #When plan reaches max quota how do we evict?
         max_idle_seconds: 86400 #Do we put a max ttl on data to help improve Over Commit abilities?
-        max_size_used_heap: 10 #How much data including backups will this node hold. thisvalue*nodes=total quota
+        max_size_used_heap: 100 #How much data including backups will this node hold. thisvalue*nodes=total quota
+      medium: # must match the plans.name in broker to associate the 2.
+        backup: 0 # How many backups of entries to distribute accross the cluster
+        async_backup: 1 # Same as above but done asyncronously
+        eviction_policy: LRU #When plan reaches max quota how do we evict?
+        max_idle_seconds: 86400 #Do we put a max ttl on data to help improve Over Commit abilities?
+        max_size_used_heap: 200 #How much data including backups will this node hold. thisvalue*nodes=total 
 ```
 
 For more details on all of the config options available you can review the *spec* file for each of the jobs.
 
-Once deployed simply add the broker to 
+Once deployed simply register the service broker to the Cloud Controller and you should be good to go.
+
+```
+cf create-service-broker memcache servicebroker brokerpasswordforcc https://memcache-service.cf-deployment.com
+
+cf enable-service-access memcache
+```
+
+### Memory Configuration
+For a caching service it is important to configure memory correctly.  There are 3 places memory is configured that you should take note of:
+
+#### memcache_hazelcast.heap_size
+This value is passed directly to the JVM and represents the total heap this node should use.  -Xmx and -Xms are set to the same value since memory consumption and control of that memory consumption is the point of a cache node.
+
+This value should be close to the total amount of RAM provided on the VM the job is deployed to.  Perhaps subtract 128M-384M or so for OS overhead and misc Java native memory consumption.
+
+#### memcache_hazelcast.hazelcast.max_cache_size
+This value represents the total amount of heap memcache-hazelcast should reserve for cache storage.  If the total memory cost of all the cache entries stored on this server exceed this value then the node will start evicting a percentage of owned entries on this node from each of the caches on this node.  This process doesn't care if the cache is large or small it just trims X% of the LRU entries from all of the caches to help relieve memory pressures on the node.
+
+In a perfect world a node's memory pressures should never reach this point.  Operators should monitor cache size and increase the cache memory pool when cached memory reaches a certain threshold.
+
+This value should obviously be less than heap_size.  The difference between max_cache_size and heap_size is the memory reserved for the node to actually operate, handle requests, and allow hazelcast to manage the cluster.  At a minimum this difference should probably be at least 256M.  The max will depend upon the amount of concurrent load you expect to get on each of the nodes.  We configure ours with a difference of 512M.
+
+#### memcache_hazelcast.plans.{plan}.max_size_used_heap
+This value is set in each of the plans you offer and represent the cache data in MB you wish this plan to allow on each of the nodes.  This value multiplied by the number of nodes deployed is the quota for this plan.  If I deploy 10 nodes and each have a max_size_used_heap of 100 then each service instance of this plan will have a quota of 1000MB.
+
+This value includes backup data use.  So, if I have a backup of 1 you can cut the quota in half and that will represent the amount unique data this plan will hold.  A value of 100MB would represent roughly 50MB of unique cache data this node will hold for each service instance.
+
+You can obviously play with these values and the naming of the plans all you want by adding more resiliancy vs. cache size.
+
 
 ### Example VCAP_SERVICES credentials
 When the service is bound credentials similar to these will be provided to the app.
@@ -152,62 +187,74 @@ We evaluated [Infinispan], [Hazelcast], [Gemfire], and [GridGain].  Of the solut
 [Gemfire]: http://projectgeode.org/
 
 #### A word about Gemfire/Project Geode
-With the announcement of Gemfire's open sourcing, Gemfire quickly jumped to the top of our list since we have *nice to have* desires for persistence/overflow to disk and an affinity for Pivotal products.  However it was ultimatly not selected because:
+With the announcement of Gemfire being open sourced it quickly jumped to the top of our list.  We had a *nice to have* desires for persistence/overflow to disk and an obvious affinity for Pivotal projects.  However it was ultimatly not selected because:
 * Customer was dictating a tight timeline that didn't allow us to wait for Project Geode
 * Gemfire's memory quota eviction wasn't as straight forward and rigid as Hazelcast's when evaluated
 * Multi datacenter support was another *nice to have* that was not open sourced with geode
 
-If Project Geode were to add more clear in-memory quotas and/or open source multi-datacenter support we would seriously consider migrating to it off of hazelcast.
+If Project Geode were to add more clear in-memory quotas and/or open source multi-datacenter support we would seriously consider migrating to it.
 
 #### Netty Memcache Codec
-Fortuitously Netty recently added a Memcache Codec to its 4.1.0 release.  Consiquently use of Netty for our highly scalable and efficient front end was a no brainer and made it relatively simple has worked out quite well.
+Netty recently added a Memcache Codec to its 4.1.0 release.  Consiquently use of Netty for our highly scalable and efficient front end was a no brainer and has worked out quite well.
 
 ### Architecture Details
 Here are a few notes of the basic architecture of the memcache-broker, memcache-hazelcast, and how they work together.
 
 #### memcache-hazelcast
 
-This is the module that acts as the memcache front-end and a Hazelcast node member.  All memcache requests come to a memcache-hazelcast node and is asynchronously executed on the node actually owning a copy of the data to be operated on.  This allows a single memcache connection to process many requests at once.  The responses to these requests are then queued in the response to be returned to the client in the order requested.
+This is the module that acts as the memcache front-end and a Hazelcast node member.  All memcache requests come to a memcache-hazelcast node and is asynchronously executed on the node actually owning the key being operated on using an *IExecutorService*.  This allows a single memcache connection to process many pipelined requests at once.  The responses to these requests are then sorted and returned to the client in the order requested.
 
-Using hazelcast synchronously is actually slightly quicker from a single request latency basis.  However, the asyncronous solution was significantly much more scalable and the difference was neglible when including network latencies. 
+Using hazelcast synchronously was actually slightly quicker from a single request latency standpoint.  However, the asyncronous solution was significantly much more scalable and the difference was neglible when including network latencies. 
 
-By executing the request on the node that owns the key it ensures that every single memcache request will only include at most one additional network hop for actual processing of the request.  This is important since some memcache requests may require multiple operations.  For example, the need to lock the key prior to increment or decrement may involve several hops (lock, get, set, unlock).
+By executing the request on the node that owns the key it ensures that every single memcache request will only include at most one network hop for actual processing of the request.  This is important since some memcache requests result in several Hazelcast operations.  For example, the an increment consists of 4 commands lock, get, set, and unlock.  By running on the node that owns the key no blocking for network communication occurs for any of these operations. 
 
-We hope to eventually provide an option to take advantage of Hazelcast's *Near-Cache* functionality.  When combined with a good consistent hashing algorithm on the client frequest *get* requests could often require no additional network hop at all.  However, we found a minor [issue] making this feature not possible for now.
+We hope to eventually provide an option to take advantage of Hazelcast's *Near-Cache* functionality.  When combined with a good consistent hashing algorithm data frequently returned form *get* requests would often require no additional network hop at all.  However, we found a minor [issue] with Hazelcast delaying this functionality.
 
 [issue]: https://github.com/hazelcast/hazelcast/issues/5133
 
 #### memcache-broker
-This module integrations this solution with the Cloud Foundry Service API.  Allowing users to create, bind, unbind, delete cache service instances.  The broker is fully clusterable.
+This module provides a Cloud Foundry v2 Service Broker.  Allowing users to create, bind, unbind, delete cache tenants for Cloud Foundry deployed apps.  The broker is stateless and therefore clusterable.
 
 #### Authentication
-Authentication is implemented as a hash using a shared key between the memcache-broker and memcache-hazelcast nodes.  This solution was chosen in an attempt to eliminate the need to deploy and manage a persistent authentication credentials store.  The limitation here is if a users wished to rotate their cache password they would need to create a new Service Instance.
+Authentication is implemented as a hash using a shared key between the memcache-broker and memcache-hazelcast nodes.  This solution was chosen in an attempt to eliminate the need to deploy and manage a persistent credentials store of some sort.  The main limitation with this solution is to rotate a cache password the user would to create and bind to a new Service Instance this would essentially invalidate the old password and give them a new password for a new cache.
 
 #### Performance
-We have not performed extensive performance tests on this solution though we have done some scalability testing and we have tried to be very efficient in the implementation.  What we have done shows that memcache-hazelcast uses quite a bit more CPU than raw Memcached.  Under a single thread localhost to localhost not clustered test the mean request time appeared to be about 2-3 times worse (150000 to 350000) nanoseconds.  When placed under siginifcant load (10000+ threads) mean request time actually evened out between this solution and raw memcached.  Showing that although this solution isn't as quick as single purpose basic memcached it does scale well.
+We have not performed extensive performance tests on this solution though we have done some scalability testing.  The tests we have run shows that memcache-hazelcast uses quite a bit more CPU than raw Memcached.
+
+We have profiled memcache-hazelcast and believe the solution is quite efficient as a front end to hazelcast.
+
+As far as latency goes under a single thread localhost to localhost not clustered test the mean request time for memcache-hazelcast appeared to be about 2-3 times worse than memcached (350000 vs 150000) nanoseconds.  When placed under siginifcant load (1000+ threads) mean times between memcache-hazelcast and raw memcached actually began to match.
+
+We haven't run any real network tests comparing memcache-hazelcast with memcached only localhost test.
+
+So it is obvious that Hazelcast, as a more complex memory grid solution, is slower than raw Memcached no big suprise there.  But, it appears as though it will perform well enough for our requirements and perhaps yours too?
 
 ## FAQ
 ### Why are you using Memcache and not Redis?  Don't you know Redis is the best?
-I have no doubt that Redis is superior to Memcached in many ways.  However, raw Redis just didn't meet what we were looking to provide regarding multi-tenancy and Redis 2 lacked clustering.  We looked into potentially fronting Hazelcast with a Redis like protocol instead of Memcache but the protocol was so much more complex and rich than Memcache's protocol it made implementing a Redis front end not feesible.
+Though I don't have much development experience with either Memcached or Redis, I have no doubt that Redis is superior to Memcached in many ways.  However, raw Redis just didn't meet what we were looking to provide regarding multi-tenancy and Redis 2 lacked clustering.  We looked into potentially fronting Hazelcast with a Redis like protocol instead of Memcache but the protocol and command set appears far more rich and complex than Memcache's protocol making fronting Hazelcast with a Redis protocol not feesible.
 
-### Why use Memcache at all?  Why not use raw Hazelcast?
-In addition to the abundant client support for the Memcache protocol we liked the idea of giving our customers a semi stable and simple Memcache API to build off of instead of something more product specific.  This allows our customers to depend upon the Memcache API and allows us to potentially change implementation in the future without asking all our customers to rewrite their cache logic.
+### Why use Memcache at all?  Why not use raw Hazelcast or some custom protocol?
+In addition to the abundant client support for the Memcache protocol we liked the idea of giving our customers a semi stable and simple Memcache API to depend upon instead of something custom or more nitch.  This gives our customers who depend upon the Memcache Protocol more API stability and allows us to potentially change solution details in the future without asking all our customers to rewrite their cache logic.
+
+Using the Memcache protocol also allows our customers to potentially utilize a thirdparty Clustered Memcache SaaS solution for amazon vs. on prem deployments without changing their application.
 
 ### Is this project so bad that you're planning to migrate off of it already?
-No, we're quite proud of this project.  But we recognize that our organization's requirements for a cache may change.  We also know that our solution may not be the fastest or best out there.  So, we plan to use this solution for as long as it meets our needs and hope to minimize impact to users of this service if things change in the future.
+No, we're quite proud of this project.  But we recognize that our organization's requirements for a cache solution may change.  We also know that our solution may not be the fastest or best available.  So, we plan to use this solution for as long as it meets our needs and hope to minimize impact to users of this service if things change in the future.
 
-### Memory Management in Java is hard and error prone.  How do you mitigate these complexities?
-It is true, Java's abstraction over how it manages memory makes it hard to implement something like a multi tenant memory quota based cache.  Under periods of extremly heavy load on an over-committed cache cluster could cause a node to get an OutOfMemoryError and fail potentially bringing down the entire cluster as backups are re-replicated and such.
+### Memory Management in Java is hard and error prone.  How do you mitigate the risk of Java OOMErrors?
+It is true, Java's abstraction over how it manages memory makes it hard to implement something like a multi tenant memory quota based cache.  Under periods of heavy load an over-committed cache cluster could cause a node to run out of memory and fail.  This could potentially bringing down the entire cluster as backups are re-replicated and new owners for the data is established.
 
-First of all Hazelcast provides a great foundation for memory based quotas in a multi tenant cache.  Hazelcast eviction config is on a per node basis not for the entire cluster.  So, if a node goes down each cache on the other nodes won't go beyond that nodes share of the quota protecting the whole cluster as backups are re-replicated and new owners are identified.
+This potential issue has been on the forfront of our minds from the beginning and believe our solution is fairly safe.  First of all Hazelcast provides a great foundation for memory based quotas in a multi tenant cache.  Hazelcast eviction config is on a per node basis not for the entire cluster.  So, if a node goes down each cache on the other nodes won't attempt to allow more memory for a cache than that node's share of the quota allows.  This protects the whole cluster as backups are re-replicated and new owners are identified if a single node's cache quota is exceeded Hazelcast will start evicting.
 
-In addition, we are big fans of over committing our resources for greater efficiency.  So, if suddenly our servers become memory strained we created a simple scheduled job that will constantly compare the size of the cached data on a given node with a configured MAX amount.  If beyond that value this job will begin evicting LRU cache entries owned by this node to free up memory and protect the cluster.  This job will also start logging angry messages warning you that you need to add more nodes to your cluster ASAP to further prevent customer data from being evicted unexpectedly.  However, in a perfect world a good operator would pay attention to the metrics being emitted from the nodes and discover that they need to add more nodes prior to this safety measure having to kick in.
+The Hazelcast config above should work perfectly if you are not over committing your cluster.  However, we are big fans of over committing our resources for greater pooled resource efficiency in our system.  So, we implemented a system allowing the deployer to reserve a maximum amount of memory for cache data.  If suddenly a cache node's cache data exceedes this reserve maximum a scheduled job will LRU evict X percent of the owned entries on each of the caches on that node relieving memory pressures.  This job will also log angry messages warning you that you need to add more nodes or memory to your cluster ASAP to further prevent customer data from being unexpectedly evicted.  However, in a perfect world a good operator of an overcommitted cluster would pay attention to the metrics being emitted from the nodes and add more capacity prior to this last resort safety measure having to kick in.
 
 ### How compatible is this service with real Memcached?
-We believe it to be very compatible.  We have an integration that continuously runs [memcapable] against our server.  We have other integration tests to regress functionality not covered by [memcapable] like GAT and touch.  We even have implemented CAS in our server.  Something that it seems many non-memcached implementations seem to leave out for some reason.
+We believe it to be very compatible.  We have an integration that continuously runs [memcapable] against our server.  We have other integration tests to regress functionality not covered by [memcapable] like GAT and touch.
 
-We also have tested the server loosely with several clients notable libmemcached, spymemcached, and xmemcached.  All seem to work well.
+This service supports CAS.  Something that seems many non-memcached implementations seem to leave out for some reason.
 
-That said we're pretty new to Memcache and the protocol and we may have completely misread the spec in relation to certain functions.  If you find we messed something up please file an issue.
+The implementation has been tested with several clients notable libmemcached, spymemcached, and xmemcached.  All seem to work well.
+
+That said we're pretty new to Memcache and we may have completely misread the spec in relation to certain functions.  If you find we messed something up please file an issue.
 
 [memcapable]: http://libmemcached.org/Memcapable.html
