@@ -152,6 +152,52 @@ When the service is bound credentials similar to these will be provided to the a
 
 It is recommended that clients connect to all servers in the cluster and use a consistent hash to pseudo load balance between the nodes even though any key could actually be obtained from any node.  The vip (if configured) should only be used for cases where client config simplisity is desired over performance.
 
+### Monitoring (Optional)
+Currently memcache-hazelcast and memcache-broker produces useful metrics over the varz/healthz system in CloudFoundry.  Publishing of metrics over the Metron protocol is not yet supported but is planned.  To take full advantage of the varz metrics sent from memcache-hazelcast you may need to customize the Cloud Foundry collector since the collector requires a handler be written for each component that wishes to send metrics beyond basic CPU and memory.
+
+This is a patch you can apply to the collector instance in your deployment that will collect all the memcache-hazelcast metrics published:
+```
+diff --git a/lib/collector/components.rb b/lib/collector/components.rb
+index 39d88f8..315cd3b 100644
+--- a/lib/collector/components.rb
++++ b/lib/collector/components.rb
+@@ -43,6 +43,8 @@
+     SERIALIZATION_DATA_SERVER = "SerializationDataServer".freeze
+ 
+     BACKUP_MANAGER = "BackupManager".freeze
++    
++    MEMCACHE_HAZELCAST = "MemcacheHazelcast".freeze
+ 
+     CORE_COMPONENTS = Set.new([CLOUD_CONTROLLER_COMPONENT, DEA_COMPONENT,
+       HEALTH_MANAGER_COMPONENT, HM9000_COMPONENT, ROUTER_COMPONENT,
+@@ -86,7 +88,8 @@
+       VBLOB_PROVISIONER => Collector::Handler::VblobProvisioner,
+       VBLOB_NODE => Collector::Handler::VblobNode,
+       SERIALIZATION_DATA_SERVER => Collector::Handler::SerializationDataServer,
+-      BACKUP_MANAGER => Collector::Handler::BackupManager
++      BACKUP_MANAGER => Collector::Handler::BackupManager,
++      MEMCACHE_HAZELCAST => Collector::Handler::MemcacheHazelcast
+     }.freeze
+ 
+     # Generates the common tags used for generating common
+diff --git a/lib/collector/handlers/memcache_hazelcast.rb b/lib/collector/handlers/memcache_hazelcast.rb
+new file mode 100644
+index 0000000..3aac10d
+--- /dev/null
++++ b/lib/collector/handlers/memcache_hazelcast.rb
+@@ -0,0 +1,11 @@
++module Collector
++  class Handler
++    class MemcacheHazelcast < Handler
++      def process(context)
++        context.varz.each do |key, message|
++          send_metric(key, message, context)
++        end
++      end
++    end
++  end
++end
+```
 
 ## Architecture Overview and Decision Process
 
