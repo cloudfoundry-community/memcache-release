@@ -264,10 +264,6 @@ Using hazelcast synchronously was actually slightly quicker from a single reques
 
 By executing the request on the node that owns the key it ensures that every single memcache request will only include at most one network hop for actual processing of the request.  This is important since some memcache requests result in several Hazelcast operations.  For example, the an increment consists of 4 commands lock, get, set, and unlock.  By running on the node that owns the key no blocking for network communication occurs for any of these operations. 
 
-We hope to eventually provide an option to take advantage of Hazelcast's *Near-Cache* functionality.  When combined with a good consistent hashing algorithm data frequently returned form *get* requests would often require no additional network hop at all.  However, we found a minor [issue] with Hazelcast delaying this functionality.
-
-[issue]: https://github.com/hazelcast/hazelcast/issues/5133
-
 #### memcache-broker
 This module provides a Cloud Foundry v2 Service Broker.  Allowing users to create, bind, unbind, delete cache tenants for Cloud Foundry deployed apps.  The broker is stateless and therefore clusterable.
 
@@ -279,11 +275,15 @@ We have not performed extensive performance tests on this solution though we hav
 
 We have profiled memcache-hazelcast and believe the solution is quite efficient as a front end to hazelcast.
 
+We hope to eventually provide an option to take advantage of Hazelcast's *Near-Cache* functionality once [issue] is released.  When combined with a good consistent hashing algorithm data frequently returned form *get* requests would often require no additional network hop at all.
+
 As far as latency goes under a single thread localhost to localhost not clustered test the mean request time for memcache-hazelcast appeared to be about 2-3 times worse than memcached (350000 vs 150000) nanoseconds.  When placed under siginifcant load (1000+ threads) mean times between memcache-hazelcast and raw memcached actually began to match.
+
+Preliminary localhost tests with *Near-Cache* enabled actually matched raw Memcached speeds.
 
 We haven't run any real network tests comparing memcache-hazelcast with memcached only localhost test.
 
-So it is obvious that Hazelcast, as a more complex memory grid solution, is slower than raw Memcached no big suprise there.  But, it appears as though it will perform well enough for our requirements and perhaps yours too?
+So it is obvious that Hazelcast, as a more complex memory grid solution, is slower than raw Memcached no big suprise there.  But, it appears as though it will perform well enough for our requirements and perhaps yours too.
 
 ## FAQ
 ### Why are you using Memcache and not Redis?  Don't you know Redis is the best?
