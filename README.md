@@ -279,11 +279,11 @@ We hope to eventually provide an option to take advantage of Hazelcast's *Near-C
 
 As far as latency goes under a single thread localhost to localhost not clustered test the mean request time for memcache-hazelcast appeared to be about 2-3 times worse than memcached (350000 vs 150000) nanoseconds.  When placed under siginifcant load (1000+ threads) mean times between memcache-hazelcast and raw memcached actually began to match.
 
-Preliminary localhost tests with *Near-Cache* enabled actually matched raw Memcached speeds.
+Preliminary localhost tests with *Near-Cache* enabled actually matched raw localhost Memcached speeds.
 
-We haven't run any real network tests comparing memcache-hazelcast with memcached only localhost test.
+During real network testing with a 10 node cluster request times average between 1 and 2ms with a min of about .6-.7ms and a max of 3-4ms regardless of the command executed.
 
-So it is obvious that Hazelcast, as a more complex memory grid solution, is slower than raw Memcached no big suprise there.  But, it appears as though it will perform well enough for our requirements and perhaps yours too.
+We haven't run any real network tests comparing memcache-hazelcast with memcached.
 
 ## FAQ
 ### Why are you using Memcache and not Redis?  Don't you know Redis is the best?
