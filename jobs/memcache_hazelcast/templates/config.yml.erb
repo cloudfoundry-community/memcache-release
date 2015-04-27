@@ -33,6 +33,7 @@ hazelcast:
   percent_to_trim: <%= p('memcache_hazelcast.hazelcast.percent_to_trim') %>
   port: <%= p('memcache_hazelcast.hazelcast.port') %>
   trim_delay: <%= p('memcache_hazelcast.hazelcast.trim_delay') %>
+  partition_count: <%= p('memcache_hazelcast.hazelcast.partition_count') %>
 <% if_p("memcache_hazelcast.hazelcast.machines") do |zones| %>
   machines:
 <% zones.each do |zone, machines| %>

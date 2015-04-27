@@ -60,6 +60,9 @@ properties:
   memcache_hazelcast.hazelcast.trim_delay:
     description: How often in seconds should the node check to see if max cache size is exceeded.
     default: 10
+  memcache_hazelcast.hazelcast.partition_count:
+    description: How many partitions exist in this cluster.  Effects total cluster scalability.
+    default: 271
   memcache_hazelcast.hazelcast.machines:
     description: The machines in this hazelcast cluster.
   memcache_hazelcast.plans:
