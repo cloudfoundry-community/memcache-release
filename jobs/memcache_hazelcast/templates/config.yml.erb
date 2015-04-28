@@ -34,6 +34,11 @@ hazelcast:
   port: <%= p('memcache_hazelcast.hazelcast.port') %>
   trim_delay: <%= p('memcache_hazelcast.hazelcast.trim_delay') %>
   partition_count: <%= p('memcache_hazelcast.hazelcast.partition_count') %>
+  io_thread_count: <%= p('memcache_hazelcast.hazelcast.io_thread_count') %>
+  operation_thread_count: <%= p('memcache_hazelcast.hazelcast.operation_thread_count') %>
+  operation_generic_thread_count: <%= p('memcache_hazelcast.hazelcast.operation_generic_thread_count') %>
+  event_thread_count: <%= p('memcache_hazelcast.hazelcast.event_thread_count') %>
+  client_event_thread_count: <%= p('memcache_hazelcast.hazelcast.client_event_thread_count') %>
 <% if_p("memcache_hazelcast.hazelcast.machines") do |zones| %>
   machines:
 <% zones.each do |zone, machines| %>

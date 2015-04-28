@@ -65,6 +65,21 @@ properties:
   memcache_hazelcast.hazelcast.partition_count:
     description: How many partitions exist in this cluster.  Effects total cluster scalability.
     default: 271
+  memcache_hazelcast.hazelcast.io_thread_count:
+    description: Number of input and output threads.
+    default: 3
+  memcache_hazelcast.hazelcast.operation_thread_count:
+    description: Number of partition based operation handler threads. -1 means CPU core count x 2.
+    default: -1
+  memcache_hazelcast.hazelcast.operation_generic_thread_count:
+    description: Number of generic operation handler threads. -1 means CPU core count x 2.
+    default: -1
+  memcache_hazelcast.hazelcast.event_thread_count:
+    description: Number of event handler threads.
+    default: 5
+  memcache_hazelcast.hazelcast.client_event_thread_count:
+    description: Thread count for handling incoming event packets.
+    default: 5
   memcache_hazelcast.hazelcast.machines:
     description: The machines in this hazelcast cluster.
   memcache_hazelcast.plans:
