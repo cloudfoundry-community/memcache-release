@@ -22,7 +22,9 @@ properties:
     description: The domain of the application
   networks.apps:
     description: "Collector network information."
-    
+
+  memcache_hazelcast.debug:
+    description: Set debug port and enable debug mode.
   memcache_hazelcast.heap_size:
     description: The amount of Heap the cache should be configured with.
     default: 1G
