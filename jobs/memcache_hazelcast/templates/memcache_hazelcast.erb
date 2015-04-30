@@ -26,7 +26,6 @@ cd $JOB_DIR
 exec $JAVA_HOME/bin/java -XX:OnOutOfMemoryError="/var/vcap/bosh/bin/monit restart memcache_hazelcast" \
 -server -XX:+UseG1GC -Xms<%= p('memcache_hazelcast.heap_size') %> -Xmx<%= p('memcache_hazelcast.heap_size') %> \
 <%= properties.memcache_hazelcast.debug ? " -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=#{properties.memcache_hazelcast.debug}" : '' %> \
--Djava.nio.channels.spi.SelectorProvider=sun.nio.ch.PollSelectorProvider \
 -jar /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar --config=file:$JOB_DIR/config/config.yml
 
 ;;
