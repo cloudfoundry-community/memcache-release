@@ -31,7 +31,7 @@ exec $JAVA_HOME/bin/java -XX:OnOutOfMemoryError="/var/vcap/bosh/bin/monit restar
 ;;
 
 stop)
-kill_and_wait $PIDFILE
+kill_and_wait $PIDFILE <%= p('memcache_hazelcast.hazelcast.local_member_safe_timeout') + 100 %>
 
 ;;
 
