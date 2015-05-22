@@ -39,6 +39,7 @@ hazelcast:
   operation_generic_thread_count: <%= p('memcache_hazelcast.hazelcast.operation_generic_thread_count') %>
   event_thread_count: <%= p('memcache_hazelcast.hazelcast.event_thread_count') %>
   client_event_thread_count: <%= p('memcache_hazelcast.hazelcast.client_event_thread_count') %>
+  max_no_heartbeat_seconds: 100000
 <% if_p("memcache_hazelcast.hazelcast.machines") do |zones| %>
   machines:
 <% zones.each do |zone, machines| %>
