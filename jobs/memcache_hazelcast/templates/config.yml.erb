@@ -55,7 +55,14 @@ plans:
 <% plans.each do |plan_name, plan| %>
   <%= plan_name %>:
   <% plan.each do |plan_key, plan_value| %>
+    <% if plan_key == "near_cache" %>
+    near_cache:
+    <% plan_value.each do |near_key, near_value| %>
+      <%= near_key %>: <%= near_value %>
+    <% end %>
+    <% else %>
     <%= plan_key %>: <%= plan_value %>
+    <% end %>
   <% end %>
 <% end %>
 <% end %>
