@@ -41,8 +41,12 @@ The simplest way to deploy this memcache service is to use BOSH.  The following 
     plans:
       small:
         name: small
-        description: A small cache with no redundency
+        description: A small cache with redundency
         free: true
+      medium:
+        name: medium
+        description: A medium cache with redundency
+        free: false
 
   memcache_hazelcast:
     heap_size: 512M # The Xmx value of the node's jvm
@@ -275,13 +279,13 @@ We have not performed extensive performance tests on this solution though we hav
 
 We have profiled memcache-hazelcast and believe the solution is quite efficient as a front end to hazelcast.
 
-We hope to eventually provide an option to take advantage of Hazelcast's *Near-Cache* functionality once [issue] is released.  When combined with a good consistent hashing algorithm data frequently returned form *get* requests would often require no additional network hop at all.
-
 As far as latency goes under a single thread localhost to localhost not clustered test the mean request time for memcache-hazelcast appeared to be about 2-3 times worse than memcached (350000 vs 150000) nanoseconds.  When placed under siginifcant load (1000+ threads) mean times between memcache-hazelcast and raw memcached actually began to match.
 
-Preliminary localhost tests with *Near-Cache* enabled actually matched raw localhost Memcached speeds.
+Localhost tests with *Near-Cache* enabled actually matched raw localhost Memcached speeds.
 
-During real network testing with a 10 node cluster request times average between 1 and 2ms with a min of about .6-.7ms and a max of 3-4ms regardless of the command executed.
+During real network testing with a 10 node cluster request times average between 1 and 2ms with a min of about .6-.7ms and a max of 3-4ms regardless of the command executed.  With near cache enabled requests were a more consistantly sub 1ms with a min of about .4ms usually.
+
+Use of *Near-Cache* has the caveat of less precise expiration times and the potential for dirty reads.  Cache hits of a near cache item doesn't update hazelcast idle timer.  This caveat can be mitigated by using a relatively small max TTL.  So that you know max idle will be updated at least as often as max TTL.
 
 We haven't run any real network tests comparing memcache-hazelcast with memcached.
 
