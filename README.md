@@ -283,7 +283,7 @@ As far as latency goes under a single thread localhost to localhost not clustere
 
 Localhost tests with *Near-Cache* enabled actually matched raw localhost Memcached speeds.
 
-During real network testing with a 10 node cluster request times average between 1 and 2ms with a min of about .4 and a max of 2-3ms regardless of the command executed.  With near cache enabled GET requests in a ready heavy cache had a min of .15 ms with a mean of about .5-.6 ms.  Fluctuations are much more network related at these speeds.
+During real network testing with a 10 node cluster request times average between 1 and 2ms with a min of about .4 and a max of 2-3ms regardless of the command executed.  With near cache enabled GET requests in a read heavy cache had a min of .15 ms with a mean of about .5-.6 ms.  Fluctuations are much more network related at these speeds.
 
 Use of *Near-Cache* has the caveat of less precise expiration times and the potential for dirty reads.  Cache hits of a near cache item doesn't update hazelcast idle timer.  This caveat can be mitigated by using a relatively small max TTL.  So that you know max idle will be updated at least as often as max TTL.
 
