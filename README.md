@@ -97,6 +97,13 @@ update:
   max_in_flight: 1 # This is the important setting
 ```
 
+### Stemcell Compatibility
+We are currently chasing a bug in Hazelcast that causes nodes to stop communicating with eachother under load: https://github.com/hazelcast/hazelcast/issues/5209
+
+This issue is made worse by and issue regarding Hazelcast heartbeats not applying to communication between regular nodes: https://github.com/hazelcast/hazelcast/issues/5253
+
+This issue doesn't happen when using a CentOS 6 Stemcell.  We've duplicated the issue on all Ubuntu and CentOS 7 stemcells.  So, until this gets figured out we recommend running all memcache-hazelcast jobs on CentOS 6.
+
 ### Memory Configuration
 For a caching service it is important to configure memory correctly.  There are 3 places memory is configured that you should take note of:
 
