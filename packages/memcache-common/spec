@@ -1,4 +1,0 @@
----
-name: memcache-common
-files:
-- common/utils.sh

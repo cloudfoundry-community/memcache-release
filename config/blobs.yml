@@ -1,9 +1,9 @@
 ---
-java/jdk-8u40-linux-x64.tar.gz:
-  object_id: dcc35cfc-64c1-40e4-a811-5d4e619f3958
-  sha: 71699364e0147434a68e9331f45208873e3be7bc
-  size: 173190465
 java/apache-maven-3.3.1-bin.tar.gz:
   object_id: 26d94610-af42-4fd2-be9d-a8cff6c520c5
   sha: a98e56056d17b415a3b13d113199bf5f8121489b
   size: 8059952
+java/openjdk-1.8.0_91-x86_64-trusty.tar.gz:
+  object_id: ffa1f1e7-86fe-4d69-bef5-e7d7c0a34fe0
+  sha: 69c612c7f783aad33f4d73ec9b44e1a2ee50f386
+  size: 78278698

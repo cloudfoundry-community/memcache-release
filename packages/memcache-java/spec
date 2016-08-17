@@ -1,4 +1,4 @@
 ---
 name: memcache-java
 files:
-- java/*
+- java/openjdk*

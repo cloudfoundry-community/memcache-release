@@ -1,14 +1,5 @@
-## JDK 8 packaging script
-
-# abort script on any command that exit with a non zero value
 set -e
-
-JAVA_VERSION=jdk1.8.0_40
-JAVA_TAR_BALL=jdk-8u40-linux-x64.tar.gz
 
 cd ${BOSH_INSTALL_TARGET}
 
-tar zxvf ${BOSH_COMPILE_TARGET}/java/${JAVA_TAR_BALL}
-
-mv ${JAVA_VERSION}/* .
-rmdir ${JAVA_VERSION}
+tar zxf ${BOSH_COMPILE_TARGET}/java*/openjdk*.tar.gz

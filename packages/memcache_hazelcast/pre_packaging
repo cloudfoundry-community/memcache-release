@@ -1,13 +1,10 @@
+# abort script on any command that exit with a non zero value
 set -e
 
-. common/setup-java-prepackaging.sh
+. memcache-utils/setup-java-prepackaging.sh
 
-cd ${BUILD_DIR}/memcache-hazelcast
-mvn -B -e clean install -DskipTests=true
-mv target/memcache-hazelcast.jar ${BUILD_DIR}/
+build_java memcache-hazelcast true
 
-cd ${BUILD_DIR}
-rm -rf memcache-hazelcast
+mv ${BUILD_DIR}/memcache-hazelcast/target/memcache-hazelcast.jar ${BUILD_DIR}/
 
 cleanup_java
-
