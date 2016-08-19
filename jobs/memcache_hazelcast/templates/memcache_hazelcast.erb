@@ -3,42 +3,38 @@
 JOB_DIR=/var/vcap/jobs/memcache_hazelcast
 RUN_DIR=/var/vcap/sys/run/memcache_hazelcast
 PIDFILE=$RUN_DIR/memcache_hazelcast.pid
-LIB_DIR=$JOB_DIR/lib
+LOG_DIR=/var/vcap/sys/log/memcache_hazelcast
 
-source /var/vcap/packages/memcache-common/utils.sh
+source /var/vcap/packages/memcache-utils/syslog_utils.sh
+source /var/vcap/packages/memcache-utils/pid_utils.sh
+
+tee_output_to_sys_log "${LOG_DIR}"
 
 case $1 in
 
-start)
-pid_guard $PIDFILE "Memcache Hazelcast"
+  start)
+    mkdir -p $LOG_DIR
 
-mkdir -p $RUN_DIR
+    pid_guard $PIDFILE "memcache_hazelcast"
 
-# Clean-up any Tomcat droppings
-rm -rf $RUN_DIR/tomcat
+    export JAVA_HOME=/var/vcap/packages/memcache-java
 
-mkdir -p $LIB_DIR
-cp /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar $LIB_DIR
-
-export JAVA_HOME=/var/vcap/packages/memcache-java
-
-cd $JOB_DIR
-exec $JAVA_HOME/bin/java -XX:OnOutOfMemoryError="/var/vcap/bosh/bin/monit restart memcache_hazelcast" \
--server -XX:+UseG1GC -Xms<%= p('memcache_hazelcast.heap_size') %> -Xmx<%= p('memcache_hazelcast.heap_size') %> \
+exec $JAVA_HOME/bin/java -server -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Xss256k \
+-XX:OnOutOfMemoryError="/var/vcap/bosh/bin/monit restart memcache_hazelcast" -Xms<%= p('memcache_hazelcast.heap_size') %> -Xmx<%= p('memcache_hazelcast.heap_size') %> \
 <%= properties.memcache_hazelcast.debug ? " -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=#{properties.memcache_hazelcast.debug}" : '' %> \
--jar /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar --config=file:$JOB_DIR/config/config.yml
+-jar /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar --spring.config.location=file:$JOB_DIR/config/ --spring.profiles.active=bosh
 
-;;
+    ;;
 
-stop)
-kill_and_wait $PIDFILE <%= p('memcache_hazelcast.hazelcast.local_member_safe_timeout') + 100 %> 0
+  stop)
+    kill_and_wait $PIDFILE
 
-;;
+    ;;
 
-*)
-echo "Usage: memcache_hazelcast {start|stop}"
+  *)
+    echo "Usage: memcache_hazelcast {start|stop}"
 
-;;
+    ;;
 
 esac
 exit 0

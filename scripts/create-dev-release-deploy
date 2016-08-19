@@ -2,7 +2,7 @@
 
 # Script for creating and uploading releases
 
-if ! bosh status | egrep -q "^\s+UUID.?*f6043305-ee66-42b0-9ed7-ae1f521ba7ae"; then
+if ! bosh status | egrep -q "^\s+UUID.?*335b667a-cdb2-4fc5-916e-2c6ef2c3cb51"; then
   echo "Slow down turbo! You're NOT using the dev BOSH director."
   exit 1
 fi
@@ -14,7 +14,7 @@ fi
 
 set -e
 
-bosh create release --force
+BOSH_SKIP_TESTS=true bosh -n create release --force --timestamp-version
 bosh -n upload release
 bosh -n deploy
 notify-send "Deployment completed"

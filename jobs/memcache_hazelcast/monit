@@ -1,5 +1,5 @@
 check process memcache_hazelcast
-  with pidfile /var/vcap/sys/run/memcache_hazelcast/memcache_hazelcast.pid every 4 cycles
-  start program "/var/vcap/jobs/memcache_hazelcast/bin/memcache_hazelcast start"
-  stop program "/var/vcap/jobs/memcache_hazelcast/bin/memcache_hazelcast stop" with timeout <%= p('memcache_hazelcast.hazelcast.local_member_safe_timeout') + 200 %> seconds
+  with pidfile /var/vcap/sys/run/memcache_hazelcast/memcache_hazelcast.pid
+  start program "/var/vcap/jobs/memcache_hazelcast/bin/memcache_hazelcast start" with timeout 60 seconds
+  stop program "/var/vcap/jobs/memcache_hazelcast/bin/memcache_hazelcast stop"
   group vcap

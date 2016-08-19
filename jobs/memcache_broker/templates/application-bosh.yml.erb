@@ -1,0 +1,23 @@
+---
+spring:
+  pid:
+    file: /var/vcap/sys/run/memcache_broker/memcache_broker.pid
+
+server:
+  port: <%= p('memcache_broker.host.port') %>
+  tomcat:
+    basedir: /var/vcap/sys/run/memcache_broker/tomcat
+
+brokerPassword: <%= p('memcache_broker.broker_password') %>
+
+memcache:
+  srvUrl: <%= p('memcache_hazelcast.host.srv_api') %>
+  username: <%= p('memcache_hazelcast.host.username') %>
+  password: <%= p('memcache_hazelcast.host.password') %>
+<% if_p("memcache_broker.memcache.vip") do |vip| %>
+  vip: <%= vip %>
+<% end %>
+  secretKey: <%= p('memcache_hazelcast.memcache.secret_key') %>
+  servers: <%= p('memcache_broker.memcache.servers').to_json %>
+
+plans: <%= p('memcache_broker.plans').to_json %>

@@ -2,27 +2,13 @@
 name: memcache_hazelcast
 templates:
   memcache_hazelcast.erb: bin/memcache_hazelcast
-  config.yml.erb: config/config.yml
+  application-bosh.yml.erb: config/application-bosh.yml
 packages:
-- memcache-common
+- memcache-utils
 - memcache-java
 - memcache_hazelcast
 
 properties:
-  nats.user:
-    description: The user used to connect to the NATS server.
-  nats.password:
-    description: The password used to connect to the NATS server.
-  nats.machines:
-    description: The list of hosts running NATS server.
-  nats.port:
-    description: The port used to connect to the NATS server.
-
-  domain:
-    description: The domain of the application
-  networks.apps:
-    description: "Collector network information."
-
   memcache_hazelcast.debug:
     description: Set debug port and enable debug mode.
   memcache_hazelcast.heap_size:

@@ -1,0 +1,40 @@
+---
+spring:
+  pid:
+    file: /var/vcap/sys/run/memcache_hazelcast/memcache_hazelcast.pid
+
+server:
+  port: <%= p('memcache_hazelcast.host.port') %>
+  tomcat:
+    basedir: /var/vcap/sys/run/memcache_hazelcast/tomcat
+
+memcache:
+  port: <%= p('memcache_hazelcast.memcache.port') %>
+  secretKey: <%= p('memcache_hazelcast.memcache.secret_key') %>
+  maxQueueSize: 1000
+
+hazelcast:
+  port: <%= p('memcache_hazelcast.hazelcast.port') %>
+  localMemberSafeTimeout: <%= p('memcache_hazelcast.hazelcast.local_member_safe_timeout') %>
+  minimumClusterMembers: <%= p('memcache_hazelcast.hazelcast.minimum_cluster_members') %>
+  executorPoolSize: <%= p('memcache_hazelcast.hazelcast.executor_pool_size') %>
+  maxCacheSize: <%= p('memcache_hazelcast.hazelcast.max_cache_size') %>
+  percentToTrim: <%= p('memcache_hazelcast.hazelcast.percent_to_trim') %>
+  trimDelay: <%= p('memcache_hazelcast.hazelcast.trim_delay') %>
+  partitionCount: <%= p('memcache_hazelcast.hazelcast.partition_count') %>
+  ioThreadCount: <%= p('memcache_hazelcast.hazelcast.io_thread_count') %>
+  operationThreadCount: <%= p('memcache_hazelcast.hazelcast.operation_thread_count') %>
+  operationGenericThreadCount: <%= p('memcache_hazelcast.hazelcast.operation_generic_thread_count') %>
+  eventThreadCount: <%= p('memcache_hazelcast.hazelcast.event_thread_count') %>
+  clientEventThreadCount: <%= p('memcache_hazelcast.hazelcast.client_event_thread_count') %>
+  maxNoHeartbeatSeconds: 300
+  operationCallTimeout: 5000
+  receiveBufferSize: 2048
+  sendBufferSize: 2048
+  machines: <%= p('memcache_hazelcast.hazelcast.machines').to_json %>
+
+plans: <%= p('memcache_hazelcast.plans').to_json %>
+
+host:
+  username: <%= p('memcache_hazelcast.host.username') %>
+  password: <%= p('memcache_hazelcast.host.password') %>
