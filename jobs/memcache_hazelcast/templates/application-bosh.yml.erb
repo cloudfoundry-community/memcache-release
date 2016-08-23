@@ -11,7 +11,7 @@ server:
 memcache:
   port: <%= p('memcache_hazelcast.memcache.port') %>
   secretKey: <%= p('memcache_hazelcast.memcache.secret_key') %>
-  maxQueueSize: 1000
+  maxQueueSize: 100
 
 hazelcast:
   port: <%= p('memcache_hazelcast.hazelcast.port') %>
