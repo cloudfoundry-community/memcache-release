@@ -73,7 +73,7 @@ properties:
     description: The maximum amount of time hazelcast will fail to communicate with another node before dropping it from the cluster.
     default: 60
   memcache_hazelcast.hazelcast.operation_call_timeout:
-    description: The maximum amount of time in milliseconds hazelcast will wait to get a response from a call to another node before erroring out.
+    description: The maximum amount of time in milliseconds hazelcast will wait to get a response from a call to another node before erroring out.  Making the default short cause these operations should be fast.
     default: 10000
   memcache_hazelcast.hazelcast.receive_buffer_size:
     description: The size of the network receive buffer in KB.  Hazelcast recommends this be 1M+ for a 10GB Network.
