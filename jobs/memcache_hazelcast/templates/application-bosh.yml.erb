@@ -11,7 +11,7 @@ server:
 memcache:
   port: <%= p('memcache_hazelcast.memcache.port') %>
   secretKey: <%= p('memcache_hazelcast.memcache.secret_key') %>
-  maxQueueSize: 100
+  maxQueueSize: <%= p('memcache_hazelcast.memcache.max_queue_size') %>
 
 hazelcast:
   port: <%= p('memcache_hazelcast.hazelcast.port') %>
@@ -27,10 +27,10 @@ hazelcast:
   operationGenericThreadCount: <%= p('memcache_hazelcast.hazelcast.operation_generic_thread_count') %>
   eventThreadCount: <%= p('memcache_hazelcast.hazelcast.event_thread_count') %>
   clientEventThreadCount: <%= p('memcache_hazelcast.hazelcast.client_event_thread_count') %>
-  maxNoHeartbeatSeconds: 300
-  operationCallTimeout: 5000
-  receiveBufferSize: 2048
-  sendBufferSize: 2048
+  maxNoHeartbeatSeconds: <%= p('memcache_hazelcast.hazelcast.max_no_heartbeat_seconds') %>
+  operationCallTimeout: <%= p('memcache_hazelcast.hazelcast.operation_call_timeout') %>
+  receiveBufferSize: <%= p('memcache_hazelcast.hazelcast.receive_buffer_size') %>
+  sendBufferSize: <%= p('memcache_hazelcast.hazelcast.send_buffer_size') %>
   machines: <%= p('memcache_hazelcast.hazelcast.machines').to_json %>
 
 plans: <%= p('memcache_hazelcast.plans').to_json %>

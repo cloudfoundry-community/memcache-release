@@ -27,6 +27,9 @@ properties:
     default: 11211
   memcache_hazelcast.memcache.secret_key:
     description: The shared secret used for memcache authentication.
+  memcache_hazelcast.memcache.max_queue_size:
+    description: The maximum size of the memcache request queue before the memcache server begins to apply back pressure.
+    default: 100
   memcache_hazelcast.hazelcast.port:
     description: The port this server will listen on for memcache requests.
     default: 5701
@@ -66,6 +69,18 @@ properties:
   memcache_hazelcast.hazelcast.client_event_thread_count:
     description: Thread count for handling incoming event packets.
     default: 5
+  memcache_hazelcast.hazelcast.max_no_heartbeat_seconds:
+    description: The maximum amount of time hazelcast will fail to communicate with another node before dropping it from the cluster.
+    default: 60
+  memcache_hazelcast.hazelcast.operation_call_timeout:
+    description: The maximum amount of time in milliseconds hazelcast will wait to get a response from a call to another node before erroring out.
+    default: 10000
+  memcache_hazelcast.hazelcast.receive_buffer_size:
+    description: The size of the network receive buffer in KB.  Hazelcast recommends this be 1M+ for a 10GB Network.
+    default: 1024 
+  memcache_hazelcast.hazelcast.send_buffer_size:
+    description: The size of the network send buffer in KB.  Hazelcast recommends this be 1M+ for a 10GB Network.
+    default: 1024
   memcache_hazelcast.hazelcast.machines:
     description: The machines in this hazelcast cluster.
   memcache_hazelcast.plans:
