@@ -1,0 +1,8 @@
+---
+name: memcache_ping
+dependencies:
+files:
+- memcache-ping/**/*
+- java/*.tar.gz
+- memcache-utils/setup-java-prepackaging.sh
+

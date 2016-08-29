@@ -4,3 +4,6 @@
 [submodule "src/memcache-broker"]
 	path = src/memcache-broker
 	url = https://github.com/cloudfoundry-community/memcache-broker.git
+[submodule "src/memcache-ping"]
+	path = src/memcache-ping
+	url = https://github.com/cloudfoundry-community/memcache-ping.git

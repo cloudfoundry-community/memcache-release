@@ -1,0 +1,26 @@
+---
+name: memcache_ping
+templates:
+  memcache_ping.erb: bin/memcache_ping
+  application-bosh.yml.erb: config/application-bosh.yml
+packages:
+- memcache-utils
+- memcache-java
+- memcache_ping
+
+properties:
+  memcache_ping.max_heap:
+    description: The Xmx of this process.
+    default: 16m
+  memcache_ping.ping_interval:
+    description: The interval in ms the application will ping memcache.
+    default: 5000
+  memcache_ping.memcache.servers:
+    description: The severs the memcache ping client will be configured with in the format "server:port"
+    default:
+    - localhost:11211
+  memcache_ping.memcache.username:
+    description: The test username to use when connecting to memcache.
+    default: test
+  memcache_ping.memcache.password:
+    description: The test password to use when connecting to memcache.

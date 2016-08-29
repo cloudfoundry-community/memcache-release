@@ -1,0 +1,11 @@
+---
+spring:
+  pid:
+    file: /var/vcap/sys/run/memcache_ping/memcache_ping.pid
+
+pingInterval: <%= p('memcache_ping.ping_interval') %>
+
+memcache:
+  servers: <%= p('memcache_ping.memcache.servers').to_json %>
+  username: <%= p('memcache_ping.memcache.username') %>
+  password: <%= p('memcache_ping.memcache.password') %>

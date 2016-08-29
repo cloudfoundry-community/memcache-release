@@ -32,6 +32,13 @@ properties:
   memcache_hazelcast.memcache.max_queue_size:
     description: The maximum size of the memcache request queue before the memcache server begins to apply back pressure.
     default: 100
+  memcache_hazelcast.memcache.test_user:
+    description: The username that non cf clients can use to hit the cache for ping/testing purposes.
+    default: test
+  memcache_hazelcast.memcache.test_password:
+    description: The password to use when connecting with the test user.
+  memcache_hazelcast.memcache.test_cache:
+    description: The cache name the test user is linked to.
   memcache_hazelcast.hazelcast.port:
     description: The port this server will listen on for memcache requests.
     default: 5701

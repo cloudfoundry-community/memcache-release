@@ -1,0 +1,5 @@
+check process memcache_ping
+  with pidfile /var/vcap/sys/run/memcache_ping/memcache_ping.pid
+  start program "/var/vcap/jobs/memcache_ping/bin/memcache_ping start" with timeout 60 seconds
+  stop program "/var/vcap/jobs/memcache_ping/bin/memcache_ping stop"
+  group vcap
