@@ -3,6 +3,8 @@ name: memcache_hazelcast
 templates:
   memcache_hazelcast.erb: bin/memcache_hazelcast
   application-bosh.yml.erb: config/application-bosh.yml
+  drain.erb: bin/drain
+  post-start.erb: bin/post-start
 packages:
 - memcache-utils
 - memcache-java

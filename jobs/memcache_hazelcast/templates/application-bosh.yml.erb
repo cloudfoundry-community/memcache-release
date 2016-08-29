@@ -19,6 +19,7 @@ hazelcast:
   localMemberSafeTimeout: <%= p('memcache_hazelcast.hazelcast.local_member_safe_timeout') %>
   minimumClusterMembers: <%= p('memcache_hazelcast.hazelcast.minimum_cluster_members') %>
   executorPoolSize: <%= p('memcache_hazelcast.hazelcast.executor_pool_size') %>
+  enableMemoryTrimmer: true
   maxCacheSize: <%= p('memcache_hazelcast.hazelcast.max_cache_size') %>
   percentToTrim: <%= p('memcache_hazelcast.hazelcast.percent_to_trim') %>
   trimDelay: <%= p('memcache_hazelcast.hazelcast.trim_delay') %>

@@ -1,0 +1,19 @@
+#!/bin/bash
+# vim: set ft=sh
+
+set +e -x
+
+start=$SECONDS
+timeout=$((<%= p('memcache_hazelcast.hazelcast.local_member_safe_timeout') %> * 2))
+
+while [[ $(curl -s http://localhost:<%= p('memcache_hazelcast.host.port') %>/status) != OK ]]
+do
+	duration=$(( SECONDS - start ))
+	if [ $duration -gt $timeout ]; then
+		echo "Failed to get OK from memcache_hazelcast before timeout $timeout.  Failing post-start."
+		exit 1
+	fi
+	echo "Did not get OK from curl.  Waiting 5 seconds.  Total: $duration"
+	sleep 5
+done
+exit 0

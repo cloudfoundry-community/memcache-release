@@ -1,0 +1,35 @@
+#!/bin/bash
+# vim: set ft=sh
+
+set +e +x
+
+pidfile=/var/vcap/sys/run/memcache_hazelcast/memcache_hazelcast.pid
+logfile=/var/vcap/sys/log/memcache_hazelcast/drain.log
+
+mkdir -p $(dirname $logfile)
+
+if [ ! -f $pidfile ]; then
+  echo "$(date): pidfile does not exist" >> $logfile
+  echo 0
+  exit 0
+fi
+
+pid=$(cat $pidfile)
+
+echo "$(date): attempting to kill pid $pidfile." >> $logfile
+start=$SECONDS
+timeout=$((<%= p('memcache_hazelcast.hazelcast.local_member_safe_timeout') %> + 30))
+while kill -0 $pid >/dev/null 2>&1
+do
+	echo "$(date): waiting 5 seconds." >> $logfile
+	kill $pid >/dev/null 2>&1
+	duration=$(( SECONDS - start ))
+	if [ $duration -gt $timeout ]; then
+		echo "$(date): forcefully killing because it failed to stop after ${timeout}s." >> $logfile
+		kill -9 $pid > /dev/null 2>&1
+	fi
+	sleep 5
+done
+
+echo 0
+exit 0
