@@ -19,20 +19,25 @@ Features:
 The simplest way to deploy this memcache service is to use BOSH.  The following is an example of the properties section of a deployment manifest.
 
 ```
-  domain: cf-deployment.com # Domain the broker and memcache-hazelcast will bind their http endpoints to
-  nats: # Nats config needed to register with router.
-    machines:
-    - 10.10.100.10
-    password: password
-    port: 4222
-    user: nats
-    
-  networks:
-    apps: default
-    management: default
-  
+instance_groups:
+-name: memcache_broker
+jobs:
+  - name: route_registrar
+    release: cf
+  - name: memcache_broker
+    release: memcache
+properties:
+  route_registrar:
+    routes:
+    - name: memcache_broker
+      port: 21080
+      registration_interval: 20s
+      uris:
+      - memcache-service.cf-deployment.com
   memcache_broker:
     broker_password: brokerpasswordforcc
+    host:
+      port: 21080
     memcache:
       vip: 10.100.100.100:11211 # Optional ViP externally configured for simplified access to cluster
       servers: # List of all memcache-hazelcast instances in the cluster for client credentials
@@ -47,14 +52,40 @@ The simplest way to deploy this memcache service is to use BOSH.  The following 
         name: medium
         description: A medium cache with redundency
         free: false
-
+  memcache_hazelcast:
+    host:
+      srv_api: https://memcache-hazelcast.cf-deployment.com
+      password: password
+    memcache:
+      secret_key: secret
+-name: memcache
+  update:
+    max_in_flight: 1
+  jobs:
+  - name: metron_agent
+    release: cf
+  - name: route_registrar
+    release: cf
+  - name: memcache_hazelcast
+    release: memcache
+properties:
+  route_registrar:
+    routes:
+    - name: memcache_hazelcast
+      port: 8080
+      registration_interval: 20s
+      uris:
+      - memcache-hazelcast.cf-deployment.com
   memcache_hazelcast:
     heap_size: 512M # The Xmx value of the node's jvm
     host:
-      srv_api: https://memcache-hazelcast.cf-deployment.com # Http endpoint for broker to interact with cluster (delete a cache, etc.)
       password: password # srv api password
+      port: 8080
+      srv_api: https://memcache-hazelcast.cf-deployment.com # Http endpoint for broker to interact with cluster (delete a cache, etc.)
     memcache:
       secret_key: secret # Secret Key broker and memcache-hazelcast share for password hashing
+      test_password: password
+      test_cache: test
     hazelcast:
       max_cache_size: 268435456 # Max heap to reserve for cache data before forced eviction take place to protect against OOMErrors
       machines: #List all members of the cluster and their respective zones for backup distribution
@@ -63,6 +94,12 @@ The simplest way to deploy this memcache service is to use BOSH.  The following 
         zone2:
         - 10.100.100.102
     plans:
+      test:
+        backup: 0
+        async_backup: 0
+        eviction_policy: LRU
+        max_idle_seconds: 60
+        max_size_used_heap: 1
       small: # must match the plans.name in broker to associate the 2.
         backup: 0 # How many backups of entries to distribute accross the cluster
         async_backup: 1 # Same as above but done asyncronously
@@ -92,17 +129,11 @@ Be sure to configure your bosh manifest to only deploy one node at a time giving
 ```
 update:
   canaries: 1
-  canary_watch_time: 3000-240000
-  update_watch_time: 3000-240000
   max_in_flight: 1 # This is the important setting
 ```
 
 ### Stemcell Compatibility
-We are currently chasing a bug in Hazelcast that causes nodes to stop communicating with eachother under load: https://github.com/hazelcast/hazelcast/issues/5209
-
-This issue is made worse by and issue regarding Hazelcast heartbeats not applying to communication between regular nodes: https://github.com/hazelcast/hazelcast/issues/5253
-
-This issue doesn't happen when using a CentOS 6 Stemcell.  We've duplicated the issue on all Ubuntu and CentOS 7 stemcells.  So, until this gets figured out we recommend running all memcache-hazelcast jobs on CentOS 6.
+The latest version of this service has been tested with ubuntu-trusty version 3232.12.  It will probably work fine for all newer version too.  The recent upgrade to Kernel 4.4 in ubuntu might be the only significant thing with that stemcell.
 
 ### Memory Configuration
 For a caching service it is important to configure memory correctly.  There are 3 places memory is configured that you should take note of:
@@ -164,51 +195,7 @@ When the service is bound credentials similar to these will be provided to the a
 It is recommended that clients connect to all servers in the cluster and use a consistent hash to pseudo load balance between the nodes even though any key could actually be obtained from any node.  The vip (if configured) should only be used for cases where client config simplisity is desired over performance.
 
 ### Monitoring (Optional)
-Currently memcache-hazelcast and memcache-broker produces useful metrics over the varz/healthz system in CloudFoundry.  Publishing of metrics over the Metron protocol is not yet supported but is planned.  To take full advantage of the varz metrics sent from memcache-hazelcast you may need to customize the Cloud Foundry collector since the collector requires a handler be written for each component that wishes to send metrics beyond basic CPU and memory.
-
-This is a patch you can apply to the collector instance in your deployment that will collect all the memcache-hazelcast metrics published:
-```
-diff --git a/lib/collector/components.rb b/lib/collector/components.rb
-index 39d88f8..315cd3b 100644
---- a/lib/collector/components.rb
-+++ b/lib/collector/components.rb
-@@ -43,6 +43,8 @@
-     SERIALIZATION_DATA_SERVER = "SerializationDataServer".freeze
- 
-     BACKUP_MANAGER = "BackupManager".freeze
-+    
-+    MEMCACHE_HAZELCAST = "MemcacheHazelcast".freeze
- 
-     CORE_COMPONENTS = Set.new([CLOUD_CONTROLLER_COMPONENT, DEA_COMPONENT,
-       HEALTH_MANAGER_COMPONENT, HM9000_COMPONENT, ROUTER_COMPONENT,
-@@ -86,7 +88,8 @@
-       VBLOB_PROVISIONER => Collector::Handler::VblobProvisioner,
-       VBLOB_NODE => Collector::Handler::VblobNode,
-       SERIALIZATION_DATA_SERVER => Collector::Handler::SerializationDataServer,
--      BACKUP_MANAGER => Collector::Handler::BackupManager
-+      BACKUP_MANAGER => Collector::Handler::BackupManager,
-+      MEMCACHE_HAZELCAST => Collector::Handler::MemcacheHazelcast
-     }.freeze
- 
-     # Generates the common tags used for generating common
-diff --git a/lib/collector/handlers/memcache_hazelcast.rb b/lib/collector/handlers/memcache_hazelcast.rb
-new file mode 100644
-index 0000000..3aac10d
---- /dev/null
-+++ b/lib/collector/handlers/memcache_hazelcast.rb
-@@ -0,0 +1,11 @@
-+module Collector
-+  class Handler
-+    class MemcacheHazelcast < Handler
-+      def process(context)
-+        context.varz.each do |key, message|
-+          send_metric(key, message, context)
-+        end
-+      end
-+    end
-+  end
-+end
-```
+Currently memcache-hazelcast and memcache-broker produces useful metrics sent over the firehose.  Support for metrics over varz/healthz was recently removed.
 
 ## Architecture Overview and Decision Process
 
@@ -262,7 +249,7 @@ With the announcement of Gemfire being open sourced it quickly jumped to the top
 If Project Geode were to add more clear in-memory quotas and/or open source multi-datacenter support we would seriously consider migrating to it.
 
 #### Netty Memcache Codec
-Netty recently added a Memcache Codec to its 4.1.0 release.  Consiquently use of Netty for our highly scalable and efficient front end was a no brainer and has worked out quite well.
+Netty recently added a Memcache Codec to its 4.1.0 release.  Consequently use of Netty for a highly scalable and efficient front end was a no brainer and has worked out quite well.
 
 ### Architecture Details
 Here are a few notes of the basic architecture of the memcache-broker, memcache-hazelcast, and how they work together.
