@@ -1,5 +1,6 @@
 check process memcache_broker
   with pidfile /var/vcap/sys/run/memcache_broker/memcache_broker.pid
-  start program "/var/vcap/jobs/memcache_broker/bin/memcache_broker start" with timeout 60 seconds
+  start program "/var/vcap/jobs/memcache_broker/bin/memcache_broker start" with timeout <%= p('memcache_broker.startup_timeout')+10 %> seconds
   stop program "/var/vcap/jobs/memcache_broker/bin/memcache_broker stop"
+  if failed port <%= p('memcache_broker.host.port') %> for 2 cycles then restart
   group vcap

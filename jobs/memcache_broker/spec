@@ -18,7 +18,9 @@ properties:
     description: The memcache rest endpoint password.
   memcache_hazelcast.memcache.secret_key:
     description: The shared secret used for memcache authentication.
-
+  memcache_broker.startup_timeout:
+    description: The time to wait for app to startup before we kill it and let monit try again.
+    default: 30
   memcache_broker.max_heap:
     description: The Xmx of this process.
     default: 32m

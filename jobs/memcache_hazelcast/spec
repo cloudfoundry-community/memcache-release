@@ -13,6 +13,9 @@ packages:
 properties:
   memcache_hazelcast.debug:
     description: Set debug port and enable debug mode.
+  memcache_hazelcast.startup_timeout:
+    description: The time to wait for app to startup before we kill it and let monit try again.
+    default: 30
   memcache_hazelcast.heap_size:
     description: The amount of Heap the cache should be configured with.
     default: 1G

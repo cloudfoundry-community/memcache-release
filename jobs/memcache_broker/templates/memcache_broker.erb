@@ -4,9 +4,11 @@ JOB_DIR=/var/vcap/jobs/memcache_broker
 RUN_DIR=/var/vcap/sys/run/memcache_broker
 PIDFILE=$RUN_DIR/memcache_broker.pid
 LOG_DIR=/var/vcap/sys/log/memcache_broker
+TMP_DIR=/var/vcap/data/tmp/memcache_broker
 
 source /var/vcap/packages/memcache-utils/syslog_utils.sh
 source /var/vcap/packages/memcache-utils/pid_utils.sh
+source /var/vcap/packages/memcache-utils/run_java_utils.sh
 
 tee_output_to_sys_log "${LOG_DIR}"
 
@@ -14,14 +16,20 @@ case $1 in
 
   start)
     mkdir -p $LOG_DIR
+    mkdir -p $RUN_DIR
+    mkdir -p $TMP_DIR
+
+    chown -R vcap:vcap $RUN_DIR
+    chown -R vcap:vcap $LOG_DIR
+    chown -R vcap:vcap $TMP_DIR
 
     pid_guard $PIDFILE "memcache-broker"
 
     export JAVA_HOME=/var/vcap/packages/memcache-java
     
-exec $JAVA_HOME/bin/java -server -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Xss256k -Xmx<%= p("memcache_broker.max_heap") %> \
--XX:OnOutOfMemoryError="/var/vcap/bosh/bin/monit restart memcache_broker" -jar /var/vcap/packages/memcache_broker/memcache-broker.jar \
---spring.config.location=file:$JOB_DIR/config/ --spring.profiles.active=bosh
+run_java <%= p('memcache_broker.startup_timeout') %> $PIDFILE 'chpst -u vcap:vcap $JAVA_HOME/bin/java -server -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Xss256k -Xmx<%= p("memcache_broker.max_heap") %> \
+-XX:OnOutOfMemoryError="kill -9 %p" -jar /var/vcap/packages/memcache_broker/memcache-broker.jar \
+--spring.config.location=file:$JOB_DIR/config/ --spring.profiles.active=bosh'
 
     ;;
 

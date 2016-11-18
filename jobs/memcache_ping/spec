@@ -9,6 +9,9 @@ packages:
 - memcache_ping
 
 properties:
+  memcache_ping.startup_timeout:
+    description: The time to wait for app to startup before we kill it and let monit try again.
+    default: 30
   memcache_ping.max_heap:
     description: The Xmx of this process.
     default: 16m

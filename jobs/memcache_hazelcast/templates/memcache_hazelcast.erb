@@ -4,9 +4,11 @@ JOB_DIR=/var/vcap/jobs/memcache_hazelcast
 RUN_DIR=/var/vcap/sys/run/memcache_hazelcast
 PIDFILE=$RUN_DIR/memcache_hazelcast.pid
 LOG_DIR=/var/vcap/sys/log/memcache_hazelcast
+TMP_DIR=/var/vcap/data/tmp/memcache_hazelcast
 
 source /var/vcap/packages/memcache-utils/syslog_utils.sh
 source /var/vcap/packages/memcache-utils/pid_utils.sh
+source /var/vcap/packages/memcache-utils/run_java_utils.sh
 
 tee_output_to_sys_log "${LOG_DIR}"
 
@@ -14,15 +16,21 @@ case $1 in
 
   start)
     mkdir -p $LOG_DIR
+    mkdir -p $RUN_DIR
+    mkdir -p $TMP_DIR
+
+    chown -R vcap:vcap $RUN_DIR
+    chown -R vcap:vcap $LOG_DIR
+    chown -R vcap:vcap $TMP_DIR
 
     pid_guard $PIDFILE "memcache_hazelcast"
 
     export JAVA_HOME=/var/vcap/packages/memcache-java
 
-exec $JAVA_HOME/bin/java -server -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Xss256k \
--XX:OnOutOfMemoryError="/var/vcap/bosh/bin/monit restart memcache_hazelcast" -Xms<%= p('memcache_hazelcast.heap_size') %> -Xmx<%= p('memcache_hazelcast.heap_size') %> \
+run_java <%= p('memcache_hazelcast.startup_timeout') %> $PIDFILE 'chpst -u vcap:vcap $JAVA_HOME/bin/java -server -XX:+UseG1GC  -Djava.io.tmpdir=$TMP_DIR -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Xss256k -Xmx<%= p('memcache_hazelcast.heap_size') %> \
+-XX:OnOutOfMemoryError="kill -9 %p" \
 <%= properties.memcache_hazelcast.debug ? " -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=#{properties.memcache_hazelcast.debug}" : '' %> \
--jar /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar --spring.config.location=file:$JOB_DIR/config/ --spring.profiles.active=bosh
+-jar /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar --spring.config.location=file:$JOB_DIR/config/ --spring.profiles.active=bosh'
 
     ;;
 

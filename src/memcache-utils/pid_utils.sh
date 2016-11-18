@@ -15,7 +15,7 @@ function pid_is_running() {
 function pid_guard() {
   declare pidfile="$1" name="$2"
 
-  echo "------------ STARTING $(basename "$0") at $(date) --------------" | tee /dev/stderr
+  echo "$(date -Iseconds): ------------ STARTING $(basename "$0") --------------" | tee /dev/stderr
 
   if [ ! -f "${pidfile}" ]; then
     return 0
@@ -25,11 +25,11 @@ function pid_guard() {
   pid=$(head -1 "${pidfile}")
 
   if pid_is_running "${pid}"; then
-    echo "${name} is already running, please stop it first"
+    echo "$(date -Iseconds): ${name} is already running, please stop it first"
     exit 1
   fi
 
-  echo "Removing stale pidfile"
+  echo "$(date -Iseconds): Removing stale pidfile"
   rm "${pidfile}"
 }
 
@@ -82,7 +82,7 @@ function kill_and_wait() {
   declare pidfile="$1" timeout="${2:-25}" sigkill_on_timeout="${3:-1}"
 
   if [ ! -f "${pidfile}" ]; then
-    echo "Pidfile ${pidfile} doesn't exist"
+    echo "$(date -Iseconds): Pidfile ${pidfile} doesn't exist"
     exit 0
   fi
 
@@ -90,32 +90,32 @@ function kill_and_wait() {
   pid=$(head -1 "${pidfile}")
 
   if [ -z "${pid}" ]; then
-    echo "Unable to get pid from ${pidfile}"
+    echo "$(date -Iseconds): Unable to get pid from ${pidfile}"
     exit 1
   fi
 
   if ! pid_is_running "${pid}"; then
-    echo "Process ${pid} is not running"
+    echo "$(date -Iseconds): Process ${pid} is not running"
     rm -f "${pidfile}"
     exit 0
   fi
 
-  echo "Killing ${pidfile}: ${pid} "
+  echo "$(date -Iseconds): Killing ${pidfile}: ${pid} "
   kill "${pid}"
 
   if ! wait_pid_death "${pid}" "${timeout}"; then
     if [ "${sigkill_on_timeout}" = "1" ]; then
-      echo "Kill timed out, using kill -9 on ${pid}"
+      echo "$(date -Iseconds): Kill timed out, using kill -9 on ${pid}"
       kill -9 "${pid}"
       sleep 0.5
     fi
   fi
 
   if pid_is_running "${pid}"; then
-    echo "Timed Out"
+    echo "$(date -Iseconds): Timed Out"
     exit 1
   else
-    echo "Stopped"
+    echo "$(date -Iseconds): Stopped"
     rm -f "${pidfile}"
   fi
 }
