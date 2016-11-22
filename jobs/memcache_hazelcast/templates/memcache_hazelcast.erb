@@ -27,8 +27,10 @@ case $1 in
 
     export JAVA_HOME=/var/vcap/packages/memcache-java
 
-run_java <%= p('memcache_hazelcast.startup_timeout') %> $PIDFILE 'chpst -u vcap:vcap $JAVA_HOME/bin/java -server -XX:+UseG1GC  -Djava.io.tmpdir=$TMP_DIR -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Xss256k -Xmx<%= p('memcache_hazelcast.heap_size') %> \
--XX:OnOutOfMemoryError="kill -9 %p" \
+    sysctl vm.swappiness=5
+
+run_java <%= p('memcache_hazelcast.startup_timeout') %> $PIDFILE 'chpst -u vcap:vcap $JAVA_HOME/bin/java -server -Djava.io.tmpdir=$TMP_DIR -Xmx<%= p('memcache_hazelcast.heap_size') %> \
+-XX:OnOutOfMemoryError="kill -9 %p" <%= p('memcache_hazelcast.java_opts') %> \
 <%= properties.memcache_hazelcast.debug ? " -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=#{properties.memcache_hazelcast.debug}" : '' %> \
 -jar /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar --spring.config.location=file:$JOB_DIR/config/ --spring.profiles.active=bosh'
 

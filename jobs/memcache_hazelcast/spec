@@ -19,6 +19,9 @@ properties:
   memcache_hazelcast.heap_size:
     description: The amount of Heap the cache should be configured with.
     default: 1G
+  memcache_hazelcast.java_opts:
+    description: Any Java opts we wish to apply beyond Xmx and TMP_DIR
+    default:  -Xms32m -XX:+UseG1GC -XX:MinHeapFreeRatio=5 -XX:MaxHeapFreeRatio=10 -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Xss256k
   memcache_hazelcast.host.port:
     description: The http port the Memcache hazelcast service will listen for REST calls on
     default: 8080
