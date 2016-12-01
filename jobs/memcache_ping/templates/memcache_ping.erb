@@ -27,9 +27,9 @@ case $1 in
 
     export JAVA_HOME=/var/vcap/packages/memcache-java
     
-run_java <%= p('memcache_ping.startup_timeout') %> $PIDFILE 'chpst -u vcap:vcap $JAVA_HOME/bin/java -server -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Xss256k -Xmx<%= p("memcache_ping.max_heap") %> \
+run_java <%= p('memcache_ping.startup_timeout') %> $PIDFILE 'chpst -u vcap:vcap $JAVA_HOME/bin/java -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true -Duser.timezone=UTC -Djava.net.preferIPv4Stack=true -Xss256k -Xmx<%= p("memcache_ping.max_heap") %> \
 -XX:OnOutOfMemoryError="kill -9 %p" -jar /var/vcap/packages/memcache_ping/memcache-ping.jar \
---spring.config.location=file:$JOB_DIR/config/ --spring.profiles.active=bosh
+--spring.config.location=file:$JOB_DIR/config/ --spring.profiles.active=bosh'
 
     ;;
 
