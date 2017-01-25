@@ -16,4 +16,6 @@ builds:
     version: '4.3'
   eaa795de-a422-4eed-9287-bc5758a79e1b:
     version: '4.4'
+  bd894bd3-d070-4c06-963d-3d26766a59f2:
+    version: '4.5'
 format-version: '2'
