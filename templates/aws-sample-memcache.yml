@@ -1,0 +1,151 @@
+name: cf-memcache
+director_uuid: a0113978-ae2f-42cc-8237-7e90ccc6e475
+
+releases:
+- {name: memcache, version: latest}
+- {name: cf, version: latest}
+
+stemcells:
+- alias: default
+  name: bosh-aws-xen-hvm-ubuntu-trusty-go_agent
+  version: 3262.14
+
+update:
+  canaries: 1
+  canary_watch_time: 30000-180000
+  max_in_flight: 1
+  update_watch_time: 30000-180000
+
+instance_groups:
+- name: memcache_broker
+  instances: 1
+  vm_type: default
+  azs: [z3]
+  stemcell: default
+  networks:
+  - name: default
+    static_ips:
+    - 192.168.115.208
+  jobs:
+  - name: route_registrar
+    release: cf
+    properties:
+      nats:
+        machines:
+        - 192.168.111.22
+        port: 4222
+        password: PASSWORD
+        user: nats_user
+      route_registrar:
+        routes:
+        - name: memcache_broker
+          port: 21080
+          registration_interval: 20s
+          uris:
+          - memcache-service.cf-domain.com
+  - name: memcache_broker
+    release: memcache
+    properties:
+      memcache_broker:
+        broker_password: brokerpasswordforcc
+        host:
+          port: 21080
+        memcache:
+          #vip: 10.100.100.100:11211 # Optional ViP externally configured for simplified access to cluster
+          servers: # List of all memcache-hazelcast instances in the cluster for client credentials
+          - 192.168.115.209:11211
+          - 192.168.115.210:11211
+        plans:
+          small:
+            name: small
+            description: A small cache with redundency
+            free: true
+          medium:
+            name: medium
+            description: A medium cache with redundency
+            free: false
+      memcache_hazelcast:
+        host:
+          srv_api: https://memcache-hazelcast.cf-domain.com
+          password: password
+        memcache:
+          secret_key: secret
+- name: memcache
+  update:
+    max_in_flight: 1
+  instances: 2
+  vm_type: default
+  azs: [z3]
+  stemcell: default
+  networks:
+  - name: default
+    static_ips:
+    - 192.168.115.209
+    - 192.168.115.210
+  jobs:
+  - name: metron_agent
+    release: cf
+    properties:
+      metron_agent:
+        deployment: cf-platform
+      metron_endpoint:
+        shared_secret: PASSWORD
+      loggregator:
+        etcd:
+          machines:
+            - 192.168.111.31
+  - name: route_registrar
+    release: cf
+    properties:
+      nats:
+        machines:
+        - 192.168.111.22
+        port: 4222
+        password: PASSWORD
+        user: nats_user
+      route_registrar:
+        routes:
+        - name: memcache_hazelcast
+          port: 8080
+          registration_interval: 20s
+          uris:
+          - memcache-hazelcast.cf-domain.com
+  - name: memcache_hazelcast
+    release: memcache
+    properties:
+      memcache_hazelcast:
+        heap_size: 512M # The Xmx value of the node's jvm
+        host:
+          password: password # srv api password
+          port: 8080
+          srv_api: https://memcache-hazelcast.cf-domain.com # Http endpoint for broker to interact with cluster (delete a cache, etc.)
+        memcache:
+          secret_key: secret # Secret Key broker and memcache-hazelcast share for password hashing
+          test_password: password
+          test_cache: test
+        hazelcast:
+          max_cache_size: 268435456 # Max heap to reserve for cache data before forced eviction take place to protect against OOMErrors
+          machines: #List all members of the cluster and their respective zones for backup distribution
+            zone1:
+            - 192.168.115.209
+            zone2:
+            - 192.168.115.210
+        plans:
+          test:
+            backup: 0
+            async_backup: 0
+            eviction_policy: LRU
+            max_idle_seconds: 60
+            max_size_used_heap: 1
+          small: # must match the plans.name in broker to associate the 2.
+            backup: 0 # How many backups of entries to distribute accross the cluster
+            async_backup: 1 # Same as above but done asyncronously
+            eviction_policy: LRU #When plan reaches max quota how do we evict?
+            max_idle_seconds: 86400 #Do we put a max ttl on data to help improve Over Commit abilities?
+            max_size_used_heap: 100 #How much data including backups will this node hold. thisvalue*nodes=total quota
+          medium: # must match the plans.name in broker to associate the 2.
+            backup: 0 # How many backups of entries to distribute accross the cluster
+            async_backup: 1 # Same as above but done asyncronously
+            eviction_policy: LRU #When plan reaches max quota how do we evict?
+            max_idle_seconds: 86400 #Do we put a max ttl on data to help improve Over Commit abilities?
+            max_size_used_heap: 200 #How much data including backups will this node hold. thisvalue*nodes=total
