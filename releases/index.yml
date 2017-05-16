@@ -20,4 +20,6 @@ builds:
     version: '4.5'
   cacb3305-d590-4c2a-a35a-73179c65eb4b:
     version: '4.6'
+  b586393b-7efd-4c30-99fe-aa21f7e29d78:
+    version: '4.7'
 format-version: '2'

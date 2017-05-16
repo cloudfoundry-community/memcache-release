@@ -1,0 +1,48 @@
+---
+packages:
+- name: memcache-java
+  version: 331ee46ba89ad7302d190b48b5a6ac520e6e4add
+  fingerprint: 331ee46ba89ad7302d190b48b5a6ac520e6e4add
+  sha1: a375394fe262fad4f993ce190e6028338ec9bfaf
+  dependencies: []
+- name: memcache_ping
+  version: 7ca7e508628dc74962a202a49ff382827bb35be9
+  fingerprint: 7ca7e508628dc74962a202a49ff382827bb35be9
+  sha1: 3db6ab3d928b3ca7fce3a4bc9ccfbe7f1997a85e
+  dependencies: []
+- name: memcache_broker
+  version: 3963874bc3346bd0f089c876a3f7aa184d745d48
+  fingerprint: 3963874bc3346bd0f089c876a3f7aa184d745d48
+  sha1: 423c29b7614b9da2052ac9c2c5f207d04d96bd1c
+  dependencies: []
+- name: memcache_hazelcast
+  version: e9e61a1991f2508fa44a86ceeddd77fd22071bc5
+  fingerprint: e9e61a1991f2508fa44a86ceeddd77fd22071bc5
+  sha1: cb0d205c9f2b7eb93fc5b79cf255749d1e1b25e2
+  dependencies: []
+- name: memcache-utils
+  version: 5fd33c8e3ca71d31d14445f642ead36f36adc18c
+  fingerprint: 5fd33c8e3ca71d31d14445f642ead36f36adc18c
+  sha1: 03aa31b618d21574de8f6386d1890f5933c4c661
+  dependencies: []
+jobs:
+- name: memcache_ping
+  version: 23c623bf8ea09004def0bbd775c3c54137b96696
+  fingerprint: 23c623bf8ea09004def0bbd775c3c54137b96696
+  sha1: efaebe9d1a9b9a8e49de0daa8e75c6534aad6b8a
+- name: memcache_broker
+  version: 5bc0aacf2e4678c16e8c4e47a62dcb4a3f7e9aa9
+  fingerprint: 5bc0aacf2e4678c16e8c4e47a62dcb4a3f7e9aa9
+  sha1: cd4c311c4f741192589f8f5339ca2dda3c7bb31a
+- name: memcache_hazelcast
+  version: 6c01435c6011bf4f4c851549827cb01cadeb7bd1
+  fingerprint: 6c01435c6011bf4f4c851549827cb01cadeb7bd1
+  sha1: 8e338398ec5a41c8f8ab6d276a933c8dbacda96a
+license:
+  version: 0fbc9511a7e7f3a4d2f1af47f5ed327237b5f06c
+  fingerprint: 0fbc9511a7e7f3a4d2f1af47f5ed327237b5f06c
+  sha1: 15e06c551a2b1d7512db7edaa0b7fcccaff1c1af
+commit_hash: 7f96e58a
+uncommitted_changes: false
+name: memcache
+version: '4.7'
