@@ -3,6 +3,7 @@ name: memcache_broker
 dependencies:
 files:
 - memcache-broker/**/*
+- cf-java-component/**/*
 - java/*.tar.gz
 - memcache-utils/setup-java-prepackaging.sh
 

@@ -7,3 +7,6 @@
 [submodule "src/memcache-ping"]
 	path = src/memcache-ping
 	url = https://github.com/cloudfoundry-community/memcache-ping.git
+[submodule "src/cf-java-component"]
+	path = src/cf-java-component
+	url = https://github.com/cloudfoundry-community/cf-java-component.git

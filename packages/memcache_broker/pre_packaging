@@ -2,6 +2,8 @@ set -e
 
 . memcache-utils/setup-java-prepackaging.sh
 
+build_java cf-java-component false
+
 build_java memcache-broker true
 
 mv ${BUILD_DIR}/memcache-broker/target/memcache-broker.jar ${BUILD_DIR}/
