@@ -1,7 +1,7 @@
 ---
 name: memcache_hazelcast
 dependencies:
+- memcache-java
 files:
 - memcache-hazelcast/**/*
-- java/*.tar.gz
-- memcache-utils/setup-java-prepackaging.sh
+- memcache-utils/setup-java-packaging.sh

@@ -1,3 +1,9 @@
 set -e
 
-cp ${BOSH_COMPILE_TARGET}/*.jar ${BOSH_INSTALL_TARGET}
+. memcache-utils/setup-java-packaging.sh
+
+build_java cf-java-component
+
+build_java memcache-broker
+
+mv ${BOSH_COMPILE_TARGET}/memcache-broker/target/memcache-broker.jar ${BOSH_INSTALL_TARGET}/

@@ -1,9 +1,0 @@
-set -e
-
-. memcache-utils/setup-java-prepackaging.sh
-
-build_java memcache-ping true
-
-mv ${BUILD_DIR}/memcache-ping/target/memcache-ping.jar ${BUILD_DIR}/
-
-cleanup_java
