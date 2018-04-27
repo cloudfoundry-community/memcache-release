@@ -35,7 +35,7 @@ properties:
     default: 11211
   memcache_hazelcast.memcache.secret_key:
     description: The shared secret used for memcache authentication.
-  memcache_hazelcast.memcache.load_warning_size:
+  memcache_hazelcast.memcache.request_rate_limit:
     description: The maximum size of the memcache request queue before the memcache server begins to apply back pressure.
     default: 500000
   memcache_hazelcast.memcache.max_queue_size:

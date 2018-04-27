@@ -11,7 +11,7 @@ server:
 memcache:
   port: <%= p('memcache_hazelcast.memcache.port') %>
   secretKey: <%= p('memcache_hazelcast.memcache.secret_key') %>
-  loadWarningSize: <%= p('memcache_hazelcast.memcache.load_warning_size') %>
+  requestRateLimit: <%= p('memcache_hazelcast.memcache.request_rate_limit') %>
   maxQueueSize: <%= p('memcache_hazelcast.memcache.max_queue_size') %>
   testUser: <%= p('memcache_hazelcast.memcache.test_user') %>
   testPassword: <%= p('memcache_hazelcast.memcache.test_password') %>
