@@ -33,6 +33,9 @@ properties:
   memcache_hazelcast.memcache.port:
     description: The port this server will listen on for memcache requests.
     default: 11211
+  memcache_hazelcast.memcache.max_value_size:
+    description: The biggest a value can be in bytes.
+    default: 1048576
   memcache_hazelcast.memcache.secret_key:
     description: The shared secret used for memcache authentication.
   memcache_hazelcast.memcache.request_rate_limit:
