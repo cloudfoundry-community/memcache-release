@@ -119,7 +119,7 @@ For more details on all of the config options available you can review the *spec
 Once deployed simply register the service broker to the Cloud Controller and you should be good to go.
 
 ```
-cf create-service-broker memcache servicebroker brokerpasswordforcc https://memcache-service.cf-deployment.com
+cf create-service-broker memcache servicebroker brokerpassword https://memcache-service.cf-deployment.com
 
 cf enable-service-access memcache
 ```
