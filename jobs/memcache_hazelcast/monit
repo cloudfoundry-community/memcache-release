@@ -3,4 +3,5 @@ check process memcache_hazelcast
   start program "/var/vcap/jobs/memcache_hazelcast/bin/memcache_hazelcast start" with timeout <%= p('memcache_hazelcast.startup_timeout')+10 %> seconds
   stop program "/var/vcap/jobs/memcache_hazelcast/bin/memcache_hazelcast stop"
   if failed port <%= p('memcache_hazelcast.host.port') %> for 2 cycles then restart
+  if failed port <%= p('memcache_hazelcast.memcache.port') %> for 2 cycles then restart
   group vcap
