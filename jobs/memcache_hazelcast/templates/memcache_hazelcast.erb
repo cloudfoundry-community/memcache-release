@@ -34,7 +34,7 @@ case $1 in
     run_java <%= p('memcache_hazelcast.startup_timeout') %> $PIDFILE 'chpst -u vcap:vcap $JAVA_HOME/bin/java -server -Djava.io.tmpdir=$TMP_DIR -Xmx<%= p('memcache_hazelcast.heap_size') %> \
 -XX:OnOutOfMemoryError="kill -9 %p" <%= p('memcache_hazelcast.java_opts') %> \
 <%= properties.memcache_hazelcast.debug ? " -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=#{properties.memcache_hazelcast.debug}" : '' %> \
--XX:+PrintGC -XX:+PrintGCDateStamps -Dhazelcast.health.monitoring.level=NOISY -Dhazelcast.health.monitoring.delay.seconds=60 \
+-Dhazelcast.health.monitoring.level=NOISY -Dhazelcast.health.monitoring.delay.seconds=300 \
 -jar /var/vcap/packages/memcache_hazelcast/memcache-hazelcast.jar --spring.config.location=file:$JOB_DIR/config/ --spring.profiles.active=bosh'
 
     ;;
